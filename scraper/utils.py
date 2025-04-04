@@ -56,7 +56,7 @@ def translate_text(line, translator):
             print(f"Error: {e}")
     return line, line
 
-def regex_search_button(driver, name):
+def regex_search_button(driver, name,rule):
     regex = re.compile(r".*(Company name or symbol).*|.*search.*", re.IGNORECASE)
 
     try:
@@ -68,6 +68,10 @@ def regex_search_button(driver, name):
                 if not placeholder or regex.match(placeholder):
                     input_field.send_keys(name)
                     input_field.send_keys(Keys.RETURN)
+                    if rule.click_button:
+                        a = driver.find_element(By.XPATH,rule.click_button)
+                        a.click()
+                        handle_alert(driver)
             except Exception as e:
                 print(f"Error:{e}")
     except Exception as e:

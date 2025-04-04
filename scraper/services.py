@@ -24,6 +24,7 @@ import json
 from langdetect import detect
 from googletrans import Translator
 
+import logging
 
 
 @shared_task(name="scheduling")
@@ -154,28 +155,35 @@ def search_news(driver, rule,symbol):
 
 
 def news_extraction(driver, rule):
-    all_news = {}
+    all_news = dict()
     try:
-        regex_class = re.compile(r".*news.*", re.IGNORECASE)
-        main_div = driver.find_elements(By.TAG_NAME, rule.main_div)
-        for div in main_div:
-            div_class = div.get_attribute("id")
-            if regex_class.search(div_class):
-                tbody = div.find_element(By.TAG_NAME, rule.tbody)
-                rows = tbody.find_elements(By.TAG_NAME, rule.rows)
-                for row in rows:
-                    link_element = row.find_element(By.TAG_NAME, "a")
-                    link_url = link_element.get_attribute("href")
-                    if rule.p_element:
-                        p_element = link_element.find_element(By.TAG_NAME, "p")
-                        link_text = p_element.text
-        
-                    else:
-                        link_text = link_element.text
-                    all_news[link_url] = link_text
+        if rule.main_div:
+            regex_class = re.compile(r".*news.*", re.IGNORECASE)
+            main_div = driver.find_elements(By.TAG_NAME, rule.main_div)
+            for div in main_div:
+                div_class = div.get_attribute("id")
+                if regex_class.search(div_class):
+                    tbody = div.find_element(By.TAG_NAME, rule.tbody)
+                    rows = tbody.find_elements(By.TAG_NAME, rule.rows)
+                    for row in rows:
+                        link_element = row.find_element(By.TAG_NAME, "a")
+                        link_url = link_element.get_attribute("href")
+                        if rule.p_element:
+                            p_element = link_element.find_element(By.TAG_NAME, "p")
+                            link_text = p_element.text
+                        else:
+                            link_text = link_element.text
+                        all_news[link_url] = link_text
+        else:
+            div_list = driver.find_element(By.XPATH,rule.div_list)
+            rows = div_list.find_elements(By.TAG_NAME, "a")
+            for row in rows:
+                link_url = row.get_attribute("href")
+                p_element = row.find_element(By.TAG_NAME, "p")
+                link_text = p_element.text
+                all_news[link_url] = link_text
     except Exception as e:
         print(f"Error in news_extraction: {e}")
-
     return all_news
 
 def single_keyword_scrape(key_word, url):
@@ -184,14 +192,18 @@ def single_keyword_scrape(key_word, url):
         rule = StockNewsURLRule.objects.filter(url=url).first()
         driver = start_selenium(url.url)
         handle_alert(driver)
-        regex_search_button(driver, key_word)
+        regex_search_button(driver, key_word,rule)
 
         try:
             news_block(driver)
         except Exception as e:
             print(f"Error in news_block: {e}")
-
-        dropdown_control(driver)
+        
+        try:
+            dropdown_control(driver)
+        except Exception as e:
+            print(f"No dropdown: {e}")
+        
         news_dict = news_extraction(driver, rule)
        
         results = []
@@ -213,14 +225,14 @@ def keyword_data(symbol, keyword_list):
     data = StockRecord.objects.filter(symbol=symbol)
     title_list = [record.title for record in data]
     translator = Translator()
-    keyword_translation_dict = {}  
+    translated_keywords = {}  
     for keyword in keyword_list:
         translated_en, translated_ne = translate_text(keyword, translator)
-        keyword_translation_dict[translated_en] = translated_ne
+        translated_keywords[translated_en] = translated_ne
 
     for title in title_list:
-        for org_keyword,trans_keyword in keyword_translation_dict.items():
+        for org_keyword,trans_keyword in translated_keywords.items():
             if org_keyword in title or trans_keyword in title:
                 print(title)
-    print(keyword_translation_dict)
+    print(translated_keywords)
     # return title

@@ -1,0 +1,33 @@
+{% extends "dashboard/layout.html" %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h2 class="heading">Related News</h2>
+    <div class="form-container">
+        {% if matched_news %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Title</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link, news in matched_news.items %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ news.title }}</td>
+                        <td><a target="_blank" href="{{ link }}" class="url-link">LINK</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No news found.</p>
+        {% endif %}
+        <!-- <form method="GET" action="{% url 'download_csv' %}">
+            <button type="submit" class="action-btn">Download Results</button>
+        </form> -->
+</div>
+{% endblock content %}

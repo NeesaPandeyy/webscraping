@@ -76,11 +76,6 @@ class SymbolAdmin(admin.ModelAdmin):
         self.message_user(request, "data fetched successfully.")
      
 
-# @admin.register(NewsURLRule)
-# class NewsURLRuleAdmin(admin.ModelAdmin):
-#     list_display = ["url"]
-#     search_fields = ("url",)
-
 @admin.register(StockRecord)
 class StockRecordAdmin(admin.ModelAdmin):
     list_display = ("get_symbols", "title", "url")
@@ -118,6 +113,11 @@ class StockRecordAdmin(admin.ModelAdmin):
 
 @admin.register(NewsURLRule)
 class NewsURLRuleAdmin(admin.ModelAdmin):
+    list_display = ["url"]
+    search_fields = ("url",)
+
+@admin.register(StockNewsURLRule)
+class StockNewsURLRuleAdmin(admin.ModelAdmin):
     list_display = ["url"]
     search_fields = ("url",)
 

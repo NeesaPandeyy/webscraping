@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}">
+    <title>Web Scraping</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}">Web Scraping</a>
+            <ul class="nav-links">
+                <li">
+                    <a href="{% url 'home' %}">Home</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+    {% block content %}
+    {% endblock %}
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this item?");
+        }
+
+    </script>
+    <script>
+        download_btn = document.getElementById("id-download-button")
+        download_btn.addEventListener("click",function(event){
+            const queryString = window.location.search;
+            window.location.href = `http://127.0.0.1:5000/download${queryString}`
+        })
+    </script>
+</body>
+</html>

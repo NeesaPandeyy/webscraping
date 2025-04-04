@@ -1,0 +1,48 @@
+{% extends "dashboard/layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="table-container">
+    <div>
+        <a href="{% url 'add_data' %}" class="btn">Add New Entry</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>URL</th>
+                <th>Keywords</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td>{{ item.title|title }}</td>
+                    <td><a href="{{ item.url }}" target="_blank" class="url-link">{{ item.url }}</a></td>
+                    <td>
+                        {% for keyword in item.keywords.all %}
+                            {{ keyword.name }}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action="{% url 'generate_action' item.sn %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" name='generate' class="action-btn">Generate</button>
+                        </form>
+                        <form action="{% url 'edit_data' item.sn %}" method="get" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn">Edit</button>
+                        </form>
+                        <!--  # add confirmation dialog -->
+                        <form action="{% url 'delete_data' item.sn %}" method="post" style="display:inline;" onsubmit="return confirmDelete()">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

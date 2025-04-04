@@ -62,9 +62,11 @@ class StockNewsURLRule(models.Model):
     url = models.ForeignKey(
         StockNewsURL, on_delete=models.CASCADE, related_name="rules"
     )
-    main_div = models.CharField(max_length=50)
-    tbody = models.CharField(max_length=50)
-    rows = models.CharField(max_length=50)
+    click_button= models.CharField(max_length=150, null=True, blank=True)
+    main_div = models.CharField(max_length=50, null=True, blank=True)
+    div_list = models.CharField(max_length=100, null=True, blank=True)
+    tbody = models.CharField(max_length=50, null=True, blank=True)
+    rows = models.CharField(max_length=50, null=True, blank=True)
     p_element = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):

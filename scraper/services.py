@@ -223,16 +223,30 @@ def single_keyword_scrape(key_word, url):
 
 def keyword_data(symbol, keyword_list):
     data = StockRecord.objects.filter(symbol=symbol)
-    title_list = [record.title for record in data]
+    symbol_data = [(record.title ,record.url) for record in data]
+    print(symbol_data)
     translator = Translator()
     translated_keywords = {}  
     for keyword in keyword_list:
         translated_en, translated_ne = translate_text(keyword, translator)
         translated_keywords[translated_en] = translated_ne
 
-    for title in title_list:
-        for org_keyword,trans_keyword in translated_keywords.items():
-            if org_keyword in title or trans_keyword in title:
-                print(title)
-    print(translated_keywords)
-    # return title
+
+# def keyword_data(symbol, keyword_list):
+#     data = StockRecord.objects.filter(symbol=symbol)
+#     title_list = [record.title for record in data]
+#     url_list = [record.url for record in data]
+#     translator = Translator()
+#     translated_keywords = {}  
+#     for keyword in keyword_list:
+#         translated_en, translated_ne = translate_text(keyword, translator)
+#         translated_keywords[translated_en] = translated_ne
+
+#     for title in title_list:
+#         for org_keyword,trans_keyword in translated_keywords.items():
+#             if org_keyword in title or trans_keyword in title:
+#                 translated_title = translate_text(title, translator)
+#                 title = translated_title[0]
+#                 print(title)
+                
+

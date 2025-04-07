@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('dashboard', '0003_alter_stocknewsurlrule_div_list'),
+        ("dashboard", "0003_alter_stocknewsurlrule_div_list"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='stocknewsurlrule',
-            name='click_button',
+            model_name="stocknewsurlrule",
+            name="click_button",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

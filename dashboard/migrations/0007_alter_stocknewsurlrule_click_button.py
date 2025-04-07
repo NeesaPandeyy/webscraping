@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('dashboard', '0006_alter_stocknewsurlrule_click_button'),
+        ("dashboard", "0006_alter_stocknewsurlrule_click_button"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='stocknewsurlrule',
-            name='click_button',
+            model_name="stocknewsurlrule",
+            name="click_button",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

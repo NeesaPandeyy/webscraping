@@ -10,6 +10,7 @@ import re
 import time
 from langdetect import detect
 
+
 def start_selenium(url):
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
@@ -49,14 +50,23 @@ def translate_text(line, translator):
     if line.strip():
         try:
             detected_lang = detect(line)
-            translated_en = translator.translate(line, dest="en").text if detected_lang != "en" else line
-            translated_ne = translator.translate(line, dest="ne").text if detected_lang != "ne" else line
+            translated_en = (
+                translator.translate(line, dest="en").text
+                if detected_lang != "en"
+                else line
+            )
+            translated_ne = (
+                translator.translate(line, dest="ne").text
+                if detected_lang != "ne"
+                else line
+            )
             return translated_en, translated_ne
         except Exception as e:
             print(f"Error: {e}")
     return line, line
 
-def regex_search_button(driver, name,rule):
+
+def regex_search_button(driver, name, rule):
     regex = re.compile(r".*(Company name or symbol).*|.*search.*", re.IGNORECASE)
 
     try:
@@ -69,7 +79,7 @@ def regex_search_button(driver, name,rule):
                     input_field.send_keys(name)
                     input_field.send_keys(Keys.RETURN)
                     if rule.click_button:
-                        a = driver.find_element(By.XPATH,rule.click_button)
+                        a = driver.find_element(By.XPATH, rule.click_button)
                         a.click()
                         handle_alert(driver)
             except Exception as e:
@@ -103,8 +113,8 @@ def dropdown_control(driver):
         print(f"Error Message: {e}")
         print("No dropdown1")
 
-    time.sleep(10)
-    driver.implicitly_wait(20)
+    time.sleep(1)
+    driver.implicitly_wait(2)
 
     try:
         dropdown_element = driver.find_element(
@@ -117,4 +127,3 @@ def dropdown_control(driver):
         print("No dropdown2")
 
     time.sleep(2)
-

@@ -11,8 +11,8 @@
             <tr>
                 <th>Title</th>
                 <th>URL</th>
-                <th>Keywords</th>
-                <th>Actions</th>
+                <!-- <th>Keywords</th> -->
+                <!-- <th>Actions</th> -->
             </tr>
         </thead>
         <tbody>
@@ -20,25 +20,25 @@
                 <tr>
                     <td>{{ item.title|title }}</td>
                     <td><a href="{{ item.url }}" target="_blank" class="url-link">{{ item.url }}</a></td>
-                    <td>
+                    <!-- <td>
                         {% for keyword in item.keywords.all %}
                             {{ keyword.name }}
                         {% endfor %}
-                    </td>
-                    <td>
-                        <form action="{% url 'generate_action' item.sn %}" method="post" style="display:inline;">
+                    </td> -->
+                    <!-- <td>
+                        <form action="{% url 'generate_action'%}" method="post" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" name='generate' class="action-btn">Generate</button>
                         </form>
-                        <form action="{% url 'edit_data' item.sn %}" method="get" style="display:inline;">
+                        <form action="{% url 'edit_data' %}" method="get" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" class="action-btn">Edit</button>
                         </form>
-                        <!--  # add confirmation dialog -->
-                        <form action="{% url 'delete_data' item.sn %}" method="post" style="display:inline;" onsubmit="return confirmDelete()">
+                         # add confirmation dialog -->
+                        <!-- <form action="{% url 'delete_data' %}" method="post" style="display:inline;" onsubmit="return confirmDelete()">
                             {% csrf_token %}
                             <button type="submit" class="action-btn">Delete</button>
-                        </form>
+                        </form> -->
                     </td>
                 </tr>
             {% endfor %}

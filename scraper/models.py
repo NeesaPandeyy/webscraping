@@ -20,4 +20,3 @@ class UserStampModel(models.Model):
 
     class Meta:
         abstract = True
-

@@ -8,7 +8,6 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>SN</th>
                     <th>Title</th>
                     <th>URL</th>
                 </tr>
@@ -16,7 +15,6 @@
             <tbody>
                 {% for link, news in matched_news.items %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
                         <td>{{ news.title }}</td>
                         <td><a target="_blank" href="{{ link }}" class="url-link">LINK</a></td>
                     </tr>

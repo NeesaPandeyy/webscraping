@@ -15,6 +15,10 @@ from .models import (
 from scraper.services import keyword_data
 from admin_auto_filters.filters import AutocompleteFilter
 from django.shortcuts import get_object_or_404
+import os
+from dotenv import load_dotenv
+
+load_dotenv() 
 
 admin.site.site_header = "Web Scraping"
 
@@ -59,7 +63,7 @@ class SymbolAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
     def fetch_from_api(self):
-        url = "https://dev.nepsetrends.com/api/stock/"
+        url = os.getenv("STOCK_API_URL")
         while url:
             response = requests.get(url)
             if response.status_code == 200:
@@ -86,29 +90,6 @@ class StockRecordAdmin(admin.ModelAdmin):
 
     def get_symbols(self, obj):
         return ", ".join(obj.symbol.values_list("name", flat=True))
-
-    # change_form_template = "dashboard/button.html"
-
-    # def response_change(self, request, obj):
-    #     if "_generate" in request.POST:
-    #         matched_news = keyword_data()
-    #         return render(
-    #             request, "dashboard/generate.html", {"matched_news": matched_news}
-    #         )
-    #     if "_details" in request.POST:
-    #         get_details()
-    #         return HttpResponseRedirect(request.path)
-
-    #     if "_sentiment" in request.POST:
-    #         sentiment = calculate_sentiment()
-    #         return render(request, "dashboard/output.html", {"sentiment": sentiment})
-
-    # def save_model(self, request, obj, form, change):
-    #     if not obj.pk:
-    #         obj.created_by = request.user
-    #     obj.updated_by = request.user
-    #     obj.save()
-
     get_symbols.short_description = "Symbols"
 
 
@@ -142,7 +123,7 @@ class SymbolKeywordRelationAdmin(admin.ModelAdmin):
 
     get_keywords.short_description = "Keywords"
 
-    change_form_template = "dashboard/button.html"
+    change_form_template = "admin/button.html"
 
     def response_change(self, request, obj):
         if "_generate" in request.POST:

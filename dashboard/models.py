@@ -37,15 +37,6 @@ class NewsURLRule(models.Model):
     def __str__(self):
         return str(self.url)
 
-
-# class SymbolKeywordRelation(models.Model):
-#     symbol = models.ForeignKey(Symbol,on_delete=models.CASCADE,related_name="stock_symbols")
-#     keyword = models.ForeignKey(Keyword,on_delete=models.CASCADE,related_name="news_keyword")
-
-#     def __str__(self):
-#         return f"{self.keyword} - {self.symbol}"
-
-
 class SymbolKeywordRelation(models.Model):
     symbol = models.ForeignKey(
         Symbol, on_delete=models.CASCADE, related_name="stock_symbols"
@@ -55,13 +46,11 @@ class SymbolKeywordRelation(models.Model):
     def __str__(self):
         return f"{self.symbol} - {', '.join([keyword.keyword for keyword in self.keywords.all()])}"
 
-
 class StockNewsURL(models.Model):
     url = models.URLField(unique=True)
 
     def __str__(self):
         return self.url
-
 
 class StockNewsURLRule(models.Model):
     url = models.ForeignKey(

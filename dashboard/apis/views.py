@@ -1,12 +1,15 @@
-from .serializers import StockRecordSerializer, SymbolKeywordSerializer
-from rest_framework.pagination import PageNumberPagination
+import json
+
+from django_filters import rest_framework as filters
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
 from dashboard.apis.filters import StockRecordFilter
 from dashboard.models import StockRecord
-from django_filters import rest_framework as filters
-from rest_framework.response import Response
 from scraper.services import apply_sentiment
-import json
+
+from .serializers import StockRecordSerializer, SymbolKeywordSerializer
 
 
 class CustomPagination(PageNumberPagination):

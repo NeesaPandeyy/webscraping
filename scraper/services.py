@@ -1,29 +1,20 @@
-from .utils import (
-    start_selenium,
-    handle_alert,
-    regex_search_button,
-    news_block,
-    translate_text,
-    dropdown_control,
-)
-from dashboard.models import (
-    StockNewsURL,
-    StockNewsURLRule,
-    NewsURL,
-    NewsURLRule,
-    StockRecord,
-    Symbol,
-)
-from celery import shared_task
-import time
 import concurrent.futures
+import re
+import time
+
+import pandas as pd
+from celery import shared_task
+from googletrans import Translator
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import re
-from googletrans import Translator
-import pandas as pd
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+from dashboard.models import (NewsURL, NewsURLRule, StockNewsURL,
+                              StockNewsURLRule, StockRecord, Symbol)
+
+from .utils import (dropdown_control, handle_alert, news_block,
+                    regex_search_button, start_selenium, translate_text)
 
 
 @shared_task(name="scheduling")

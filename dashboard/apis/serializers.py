@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from dashboard.models import Symbol, Keyword, StockRecord
+
+from dashboard.models import Keyword, StockRecord, Symbol
 
 
 class StockRecordSerializer(serializers.ModelSerializer):

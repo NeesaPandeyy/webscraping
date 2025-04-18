@@ -1,22 +1,18 @@
-from django.contrib import admin
-import requests
-from django.urls import path
-from django.http import HttpResponseRedirect
-from .models import (
-    StockRecord,
-    StockNewsURLRule,
-    NewsURLRule,
-    NewsURL,
-    StockNewsURL,
-    Symbol,
-    Keyword,
-    SymbolKeywordRelation,
-)
-from scraper.services import keyword_data
-from admin_auto_filters.filters import AutocompleteFilter
-from django.shortcuts import get_object_or_404
 import os
+
+import requests
+from admin_auto_filters.filters import AutocompleteFilter
+from django.contrib import admin
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import path
 from dotenv import load_dotenv
+
+from scraper.services import keyword_data
+
+from .models import (Keyword, NewsURL, NewsURLRule, StockNewsURL,
+                     StockNewsURLRule, StockRecord, Symbol,
+                     SymbolKeywordRelation)
 
 load_dotenv()
 

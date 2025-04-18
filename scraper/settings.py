@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "django_extensions",
+    "rest_framework",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -151,3 +153,8 @@ CELERY_TIME_ZONE = "Asia/Kathmandu"
 CELERY_RESULT_EXTENDED = True
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+}

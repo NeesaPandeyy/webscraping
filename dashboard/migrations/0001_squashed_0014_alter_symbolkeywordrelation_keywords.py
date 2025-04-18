@@ -5,88 +5,205 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
-    replaces = [('dashboard', '0001_initial'), ('dashboard', '0002_stocknewsurlrule_div_list_and_more'), ('dashboard', '0003_alter_stocknewsurlrule_div_list'), ('dashboard', '0004_stocknewsurlrule_click_button'), ('dashboard', '0005_alter_stocknewsurlrule_click_button'), ('dashboard', '0006_alter_stocknewsurlrule_click_button'), ('dashboard', '0007_alter_stocknewsurlrule_click_button'), ('dashboard', '0008_alter_stocknewsurlrule_click_button'), ('dashboard', '0009_stocknewsurlrule_headline_and_more'), ('dashboard', '0010_stockrecord_summary'), ('dashboard', '0011_remove_newsurlrule_link_text_and_more'), ('dashboard', '0012_remove_newsurlrule_summary_id'), ('dashboard', '0013_alter_symbolkeywordrelation_keywords'), ('dashboard', '0014_alter_symbolkeywordrelation_keywords')]
+    replaces = [
+        ("dashboard", "0001_initial"),
+        ("dashboard", "0002_stocknewsurlrule_div_list_and_more"),
+        ("dashboard", "0003_alter_stocknewsurlrule_div_list"),
+        ("dashboard", "0004_stocknewsurlrule_click_button"),
+        ("dashboard", "0005_alter_stocknewsurlrule_click_button"),
+        ("dashboard", "0006_alter_stocknewsurlrule_click_button"),
+        ("dashboard", "0007_alter_stocknewsurlrule_click_button"),
+        ("dashboard", "0008_alter_stocknewsurlrule_click_button"),
+        ("dashboard", "0009_stocknewsurlrule_headline_and_more"),
+        ("dashboard", "0010_stockrecord_summary"),
+        ("dashboard", "0011_remove_newsurlrule_link_text_and_more"),
+        ("dashboard", "0012_remove_newsurlrule_summary_id"),
+        ("dashboard", "0013_alter_symbolkeywordrelation_keywords"),
+        ("dashboard", "0014_alter_symbolkeywordrelation_keywords"),
+    ]
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Keyword',
+            name="Keyword",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('keyword', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("keyword", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='NewsURL',
+            name="NewsURL",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField(unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.URLField(unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='StockNewsURL',
+            name="StockNewsURL",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField(unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.URLField(unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Symbol',
+            name="Symbol",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('full_name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                ("full_name", models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='StockRecord',
+            name="StockRecord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=500)),
-                ('url', models.URLField(max_length=500)),
-                ('symbol', models.ManyToManyField(related_name='symbol', to='dashboard.symbol')),
-                ('summary', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=500)),
+                ("url", models.URLField(max_length=500)),
+                (
+                    "symbol",
+                    models.ManyToManyField(
+                        related_name="symbol", to="dashboard.symbol"
+                    ),
+                ),
+                ("summary", models.TextField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='StockNewsURLRule',
+            name="StockNewsURLRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('main_div', models.CharField(blank=True, max_length=50, null=True)),
-                ('tbody', models.CharField(blank=True, max_length=50, null=True)),
-                ('rows', models.CharField(blank=True, max_length=50, null=True)),
-                ('url', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rules', to='dashboard.stocknewsurl')),
-                ('div_list', models.CharField(blank=True, max_length=100, null=True)),
-                ('click_button', models.CharField(blank=True, max_length=150, null=True)),
-                ('headline', models.CharField(blank=True, max_length=50, null=True)),
-                ('summary_class', models.CharField(blank=True, max_length=50, null=True)),
-                ('summary_id', models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("main_div", models.CharField(blank=True, max_length=50, null=True)),
+                ("tbody", models.CharField(blank=True, max_length=50, null=True)),
+                ("rows", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "url",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rules",
+                        to="dashboard.stocknewsurl",
+                    ),
+                ),
+                ("div_list", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "click_button",
+                    models.CharField(blank=True, max_length=150, null=True),
+                ),
+                ("headline", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "summary_class",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                ("summary_id", models.CharField(blank=True, max_length=50, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='NewsURLRule',
+            name="NewsURLRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('search', models.CharField(blank=True, max_length=100, null=True)),
-                ('search_bar', models.CharField(blank=True, max_length=100, null=True)),
-                ('main_div', models.CharField(blank=True, max_length=100, null=True)),
-                ('div_list', models.CharField(blank=True, max_length=100, null=True)),
-                ('url', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='news_rules', to='dashboard.newsurl')),
-                ('headline', models.CharField(blank=True, max_length=50, null=True)),
-                ('summary_class', models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("search", models.CharField(blank=True, max_length=100, null=True)),
+                ("search_bar", models.CharField(blank=True, max_length=100, null=True)),
+                ("main_div", models.CharField(blank=True, max_length=100, null=True)),
+                ("div_list", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "url",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="news_rules",
+                        to="dashboard.newsurl",
+                    ),
+                ),
+                ("headline", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "summary_class",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SymbolKeywordRelation',
+            name="SymbolKeywordRelation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('keywords', models.ManyToManyField(blank=True, related_name='news_keywords', to='dashboard.keyword')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stock_symbols', to='dashboard.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "keywords",
+                    models.ManyToManyField(
+                        blank=True, related_name="news_keywords", to="dashboard.keyword"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stock_symbols",
+                        to="dashboard.symbol",
+                    ),
+                ),
             ],
         ),
     ]

@@ -18,7 +18,7 @@ from django.shortcuts import get_object_or_404
 import os
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
 admin.site.site_header = "Web Scraping"
 
@@ -90,6 +90,7 @@ class StockRecordAdmin(admin.ModelAdmin):
 
     def get_symbols(self, obj):
         return ", ".join(obj.symbol.values_list("name", flat=True))
+
     get_symbols.short_description = "Symbols"
 
 

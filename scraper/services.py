@@ -4,6 +4,7 @@ from .utils import (
     regex_search_button,
     news_block,
     translate_text,
+    dropdown_control,
 )
 from dashboard.models import (
     StockNewsURL,
@@ -22,10 +23,7 @@ import re
 from googletrans import Translator
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import matplotlib.pyplot as plt
 from textblob import TextBlob
-import seaborn as sns
-import os
 
 
 @shared_task(name="scheduling")
@@ -123,7 +121,7 @@ def scrape_news(symbol, url):
 
 
 def search_news(driver, rule, symbol):
-    all_news = {}
+    all_news = dict()
     try:
         search = driver.find_element(By.XPATH, rule.search)
         search.click()
@@ -141,11 +139,10 @@ def search_news(driver, rule, symbol):
             try:
                 link = div.find_element(By.TAG_NAME, "a")
                 link_url = link.get_attribute("href")
-                if rule.link_text:
-                    link_text = div.find_element(By.CLASS_NAME, rule.link_text).text
-                else:
-                    link_text = link.text
-                all_news[link_url] = link_text
+                new_driver = start_selenium(link_url)
+                time.sleep(2)
+                content = detail_content(new_driver, rule)
+                all_news[link_url] = content
             except:
                 continue
     except:
@@ -198,10 +195,10 @@ def single_keyword_scrape(key_word, url):
         except Exception as e:
             print(f"Error in news_block: {e}")
 
-        # try:
-        #     dropdown_control(driver)
-        # except Exception as e:
-        #     print(f"No dropdown: {e}")
+        try:
+            dropdown_control(driver)
+        except Exception as e:
+            print(f"No dropdown: {e}")
 
         news_dict = news_extraction(driver, rule)
 
@@ -224,6 +221,33 @@ def single_keyword_scrape(key_word, url):
     finally:
         if driver:
             driver.quit()
+
+
+def detail_content(driver, rule):
+    translator = Translator()
+    content = {}
+    try:
+        headline = driver.find_element(By.TAG_NAME, rule.headline).text.replace(
+            "\n", " "
+        )
+        if rule.summary_id:
+            summary = driver.find_element(By.ID, rule.summary_id).text.replace(
+                "\n", " "
+            )
+        elif rule.summary_class:
+            summary = driver.find_element(
+                By.CLASS_NAME, rule.summary_class
+            ).text.replace("\n", " ")
+        translated_title, _ = translate_text(headline, translator)
+        translated_summary, _ = translate_text(summary, translator)
+        content[translated_title] = translated_summary
+    except:
+        print("Error to extract details")
+    finally:
+        if driver:
+            driver.quit()
+    print(content)
+    return content
 
 
 def keyword_data(symbol, keyword_list=None):
@@ -257,13 +281,8 @@ def keyword_data(symbol, keyword_list=None):
                         {"title": translated_title, "summary": translated_summary}
                     )
     df = pd.DataFrame(matched_records)
-    calculate_sentiment(df)
-
-
-def calculate_sentiment(df):
-    df = apply_vader_sentiment(df)
-    df = apply_textblob_sentiment(df)
-    return df
+    result = apply_sentiment(df)
+    return result
 
 
 def sentiment_score_vader(sentence):
@@ -273,7 +292,7 @@ def sentiment_score_vader(sentence):
 
 
 def sentiment_score_textblob(text):
-    return TextBlob(text).sentiment.polarity if pd.notnull(text) else None
+    return TextBlob(text).sentiment.polarity
 
 
 def sentiment_label(score, method="vader"):
@@ -285,7 +304,9 @@ def sentiment_label(score, method="vader"):
         return "Positive" if score > 0 else "Negative" if score < 0 else "Neutral"
 
 
-def apply_vader_sentiment(df):
+def apply_sentiment(data):
+    result = data.values()
+    df = pd.DataFrame(result)
     df["sentiment_score_title_vader"] = df["title"].apply(sentiment_score_vader)
     df["sentiment_score_summary_vade"] = df["summary"].apply(sentiment_score_vader)
 
@@ -295,20 +316,6 @@ def apply_vader_sentiment(df):
     df["Summary_sentiment_vader"] = df["sentiment_score_summary_vade"].apply(
         lambda x: sentiment_label(x, method="vader")
     )
-
-    plot_sentiment_counts(
-        df,
-        "Title_sentiment_vader",
-        "Summary_sentiment_vader",
-        "Title Sentiment (VADER)",
-        "Summary Sentiment (VADER)",
-        "vader",
-    )
-
-    return df
-
-
-def apply_textblob_sentiment(df):
     df["sentiment_score_title_textblob"] = df["title"].apply(sentiment_score_textblob)
     df["sentiment_score_summary_textblob"] = df["summary"].apply(
         sentiment_score_textblob
@@ -321,53 +328,15 @@ def apply_textblob_sentiment(df):
         lambda x: sentiment_label(x, method="textblob")
     )
 
-    plot_sentiment_counts(
-        df,
-        "Title_sentiment_textblob",
-        "Summary_sentiment_textblob",
-        "Title Sentiment (TextBlob)",
-        "Summary Sentiment (TextBlob)",
-        "textblob",
-    )
-    return df
-
-
-def plot_sentiment_counts(df, title_col, summary_col, title1, title2, filename):
-    plt.figure(figsize=(12, 5))
-
-    plt.subplot(1, 2, 1)
-    sns.countplot(x=df[title_col], hue=df[title_col], palette="Blues", legend=False)
-    plt.title(title1)
-
-    plt.subplot(1, 2, 2)
-    sns.countplot(
-        x=df[summary_col], hue=df[summary_col], palette="Greens", legend=False
-    )
-    plt.title(title2)
-
-    output_path = os.path.join("dashboard/static/dashboard", f"{filename}.png")
-    plt.tight_layout()
-    plt.savefig(output_path)
-    plt.close()
-
-
-def detail_content(driver, rule):
-    content = {}
-    try:
-        headline = driver.find_element(By.TAG_NAME, rule.headline).text.replace(
-            "\n", " "
-        )
-        if rule.summary_id:
-            summary = driver.find_element(By.ID, rule.summary_id).text.replace(
-                "\n", " "
-            )
-        if rule.summary_class:
-            summary = driver.find_element(
-                By.CLASS_NAME, rule.summary_class
-            ).text.replace("\n", " ")
-
-        content[headline] = summary
-    except:
-        print("Error to extract details")
-
-    return content
+    result_df = df[
+        [
+            "title",
+            "summary",
+            "Title_sentiment_vader",
+            "Summary_sentiment_vader",
+            "Title_sentiment_textblob",
+            "Summary_sentiment_textblob",
+        ]
+    ]
+    result_json = result_df.to_json(orient="records", force_ascii=False)
+    return result_json

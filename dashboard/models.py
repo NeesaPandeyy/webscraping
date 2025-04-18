@@ -37,6 +37,7 @@ class NewsURLRule(models.Model):
     def __str__(self):
         return str(self.url)
 
+
 class SymbolKeywordRelation(models.Model):
     symbol = models.ForeignKey(
         Symbol, on_delete=models.CASCADE, related_name="stock_symbols"
@@ -46,11 +47,13 @@ class SymbolKeywordRelation(models.Model):
     def __str__(self):
         return f"{self.symbol} - {', '.join([keyword.keyword for keyword in self.keywords.all()])}"
 
+
 class StockNewsURL(models.Model):
     url = models.URLField(unique=True)
 
     def __str__(self):
         return self.url
+
 
 class StockNewsURLRule(models.Model):
     url = models.ForeignKey(
@@ -61,6 +64,7 @@ class StockNewsURLRule(models.Model):
     div_list = models.CharField(max_length=100, null=True, blank=True)
     tbody = models.CharField(max_length=50, null=True, blank=True)
     rows = models.CharField(max_length=50, null=True, blank=True)
+    uploaded = models.CharField(max_length=50, null=True, blank=True)
     headline = models.CharField(max_length=50, null=True, blank=True)
     summary_id = models.CharField(max_length=50, null=True, blank=True)
     summary_class = models.CharField(max_length=50, null=True, blank=True)
@@ -72,8 +76,9 @@ class StockNewsURLRule(models.Model):
 class StockRecord(models.Model):
     symbol = models.ManyToManyField(Symbol, related_name="symbol")
     title = models.CharField(max_length=500)
-    url = models.URLField(max_length=500)
     summary = models.TextField(blank=True, null=True)
+    url = models.URLField(max_length=500)
+    date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return ", ".join(self.symbol.values_list("name", flat=True))

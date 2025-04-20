@@ -14,7 +14,7 @@ from dashboard.models import (NewsURL, NewsURLRule, StockNewsURL,
                               StockNewsURLRule, StockRecord, Symbol)
 
 from .utils import (dropdown_control, handle_alert, news_block,
-                    regex_search_button, start_selenium, translate_text)
+                    regex_search_button, start_selenium, translate_text,date_convertor)
 
 
 @shared_task(name="scheduling")
@@ -81,6 +81,7 @@ def stock_news():
                 title=item["title"],
                 url=item["url"],
                 summary=item["summary"],
+                date=item["date"]
             )
             stock_record.symbol.set(symbols)
             if "full_name" in item:
@@ -143,7 +144,7 @@ def search_news(driver, rule, symbol):
 
 
 def news_extraction(driver, rule):
-    all_news = dict()
+    all_news = {}
     try:
         if rule.main_div:
             regex_class = re.compile(r".*news.*", re.IGNORECASE)
@@ -195,16 +196,16 @@ def single_keyword_scrape(key_word, url):
 
         results = []
         for link_url, link_detail in news_dict.items():
-            for title, summary in link_detail.items():
+            for title, detail in link_detail.items():
                 results.append(
                     {
                         "symbol": key_word,
                         "url": link_url,
                         "title": title,
-                        "summary": summary,
+                        "summary" :detail["summary"],
+                        "date" : detail["date"]
                     }
                 )
-        print(results)
         return results
     except Exception as e:
         print(f"Error in {url.url} for {key_word}: {e}")
@@ -218,6 +219,8 @@ def detail_content(driver, rule):
     translator = Translator()
     content = {}
     try:
+        date_orginal = driver.find_element(By.CLASS_NAME,rule.uploaded).text
+        date = date_convertor(date_orginal)
         headline = driver.find_element(By.TAG_NAME, rule.headline).text.replace(
             "\n", " "
         )
@@ -231,13 +234,15 @@ def detail_content(driver, rule):
             ).text.replace("\n", " ")
         translated_title, _ = translate_text(headline, translator)
         translated_summary, _ = translate_text(summary, translator)
-        content[translated_title] = translated_summary
+        content[translated_title] = {
+                            "summary": translated_summary,
+                            "date": date,
+                        }
     except:
         print("Error to extract details")
     finally:
         if driver:
             driver.quit()
-    print(content)
     return content
 
 

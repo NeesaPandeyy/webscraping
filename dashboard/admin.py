@@ -79,8 +79,8 @@ class SymbolAdmin(admin.ModelAdmin):
 
 @admin.register(StockRecord)
 class StockRecordAdmin(admin.ModelAdmin):
-    list_display = ("get_symbols", "title", "url", "summary")
-    list_filter = ("symbol",)
+    list_display = ("get_symbols", "title", "url", "summary","date")
+    list_filter = ("symbol","date")
     autocomplete_fields = ("symbol",)
     search_fields = ("title",)
 

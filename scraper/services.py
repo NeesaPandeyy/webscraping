@@ -1,6 +1,7 @@
 import concurrent.futures
 import re
 import time
+import datetime
 
 import pandas as pd
 from celery import shared_task
@@ -10,11 +11,24 @@ from selenium.webdriver.common.keys import Keys
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from dashboard.models import (NewsURL, NewsURLRule, StockNewsURL,
-                              StockNewsURLRule, StockRecord, Symbol)
+from dashboard.models import (
+    NewsURL,
+    NewsURLRule,
+    StockNewsURL,
+    StockNewsURLRule,
+    StockRecord,
+    Symbol,
+)
 
-from .utils import (dropdown_control, handle_alert, news_block,
-                    regex_search_button, start_selenium, translate_text,date_convertor)
+from .utils import (
+    dropdown_control,
+    handle_alert,
+    news_block,
+    regex_search_button,
+    start_selenium,
+    translate_text,
+    date_convertor,
+)
 
 
 @shared_task(name="scheduling")
@@ -26,7 +40,7 @@ def stock_news():
     news_list = []
     stock_list = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         stock_futures = {}
         news_futures = {}
 
@@ -81,7 +95,7 @@ def stock_news():
                 title=item["title"],
                 url=item["url"],
                 summary=item["summary"],
-                date=item["date"]
+                date=item["date"],
             )
             stock_record.symbol.set(symbols)
             if "full_name" in item:
@@ -105,7 +119,7 @@ def scrape_news(symbol, url):
             results.append({"symbol": symbol, "url": link_url, "title": link_text})
         return results
     except Exception as e:
-        print(f"Error scraping news for symbol {symbol}: {e}")
+        print(f"Error in scrape news for symbol {symbol}: {e}")
         return {}
     finally:
         if driver:
@@ -137,8 +151,8 @@ def search_news(driver, rule, symbol):
                 all_news[link_url] = content
             except:
                 continue
-    except:
-        pass
+    except Exception as e:
+        print(f"Error in search news block:{e}")
 
     return all_news
 
@@ -157,18 +171,20 @@ def news_extraction(driver, rule):
                     for row in rows:
                         link_element = row.find_element(By.TAG_NAME, "a")
                         link_url = link_element.get_attribute("href")
-                        new_driver = start_selenium(link_url)
-                        content = detail_content(new_driver, rule)
-                        all_news[link_url] = content
+                        if not StockRecord.objects.filter(url=link_url).exists():
+                            new_driver = start_selenium(link_url)
+                            content = detail_content(new_driver, rule)
+                            all_news[link_url] = content
         else:
             div_list = driver.find_element(By.XPATH, rule.div_list)
             rows = div_list.find_elements(By.TAG_NAME, "a")
             for row in rows:
                 link_url = row.get_attribute("href")
-                new_driver = start_selenium(link_url)
-                time.sleep(2)
-                content = detail_content(new_driver, rule)
-                all_news[link_url] = content
+                if not StockRecord.objects.filter(url=link_url).exists():
+                    new_driver = start_selenium(link_url)
+                    time.sleep(2)
+                    content = detail_content(new_driver, rule)
+                    all_news[link_url] = content
     except Exception as e:
         print(f"Error in news_extraction: {e}")
     return all_news
@@ -202,13 +218,13 @@ def single_keyword_scrape(key_word, url):
                         "symbol": key_word,
                         "url": link_url,
                         "title": title,
-                        "summary" :detail["summary"],
-                        "date" : detail["date"]
+                        "summary": detail["summary"],
+                        "date": detail["date"],
                     }
                 )
         return results
     except Exception as e:
-        print(f"Error in {url.url} for {key_word}: {e}")
+        print(f"Error in single_keyword_scrape {url.url} for {key_word}: {e}")
         return {}
     finally:
         if driver:
@@ -218,9 +234,17 @@ def single_keyword_scrape(key_word, url):
 def detail_content(driver, rule):
     translator = Translator()
     content = {}
+    date = None
     try:
-        date_orginal = driver.find_element(By.CLASS_NAME,rule.uploaded).text
-        date = date_convertor(date_orginal)
+        date_orginal = driver.find_elements(By.CLASS_NAME, rule.uploaded)
+        for date in date_orginal:
+            date = date.text
+            date = date_convertor(date)
+
+            if isinstance(date, datetime.date):
+                date = date
+                break
+
         headline = driver.find_element(By.TAG_NAME, rule.headline).text.replace(
             "\n", " "
         )
@@ -235,11 +259,11 @@ def detail_content(driver, rule):
         translated_title, _ = translate_text(headline, translator)
         translated_summary, _ = translate_text(summary, translator)
         content[translated_title] = {
-                            "summary": translated_summary,
-                            "date": date,
-                        }
-    except:
-        print("Error to extract details")
+            "summary": translated_summary,
+            "date": date,
+        }
+    except Exception as e:
+        print(f"Error in detail content :{e}")
     finally:
         if driver:
             driver.quit()
@@ -323,9 +347,11 @@ def apply_sentiment(data):
     df["Summary_sentiment_textblob"] = df["sentiment_score_summary_textblob"].apply(
         lambda x: sentiment_label(x, method="textblob")
     )
+    df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
 
     result_df = df[
         [
+            "date",
             "title",
             "summary",
             "Title_sentiment_vader",

@@ -10,9 +10,16 @@ from dotenv import load_dotenv
 
 from scraper.services import keyword_data
 
-from .models import (Keyword, NewsURL, NewsURLRule, StockNewsURL,
-                     StockNewsURLRule, StockRecord, Symbol,
-                     SymbolKeywordRelation)
+from .models import (
+    Keyword,
+    NewsURL,
+    NewsURLRule,
+    StockNewsURL,
+    StockNewsURLRule,
+    StockRecord,
+    Symbol,
+    SymbolKeywordRelation,
+)
 
 load_dotenv()
 
@@ -79,8 +86,8 @@ class SymbolAdmin(admin.ModelAdmin):
 
 @admin.register(StockRecord)
 class StockRecordAdmin(admin.ModelAdmin):
-    list_display = ("get_symbols", "title", "url", "summary","date")
-    list_filter = ("symbol","date")
+    list_display = ("get_symbols", "title", "url", "summary", "date")
+    list_filter = ("symbol", "date")
     autocomplete_fields = ("symbol",)
     search_fields = ("title",)
 

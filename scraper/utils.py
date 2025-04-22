@@ -1,8 +1,8 @@
 import datetime
 import re
-import nepali_datetime
 import time
 
+import nepali_datetime
 from langdetect import detect
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException

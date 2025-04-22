@@ -1,7 +1,7 @@
 import concurrent.futures
+import datetime
 import re
 import time
-import datetime
 
 import pandas as pd
 from celery import shared_task
@@ -11,24 +11,11 @@ from selenium.webdriver.common.keys import Keys
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from dashboard.models import (
-    NewsURL,
-    NewsURLRule,
-    StockNewsURL,
-    StockNewsURLRule,
-    StockRecord,
-    Symbol,
-)
+from dashboard.models import (NewsURL, NewsURLRule, StockNewsURL,
+                              StockNewsURLRule, StockRecord, Symbol)
 
-from .utils import (
-    dropdown_control,
-    handle_alert,
-    news_block,
-    regex_search_button,
-    start_selenium,
-    translate_text,
-    date_convertor,
-)
+from .utils import (date_convertor, dropdown_control, handle_alert, news_block,
+                    regex_search_button, start_selenium, translate_text)
 
 
 @shared_task(name="scheduling")
@@ -37,7 +24,6 @@ def stock_news():
     news_urls = NewsURL.objects.all()
     stock_urls = StockNewsURL.objects.all()
     start = time.perf_counter()
-    news_list = []
     stock_list = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
@@ -52,14 +38,6 @@ def stock_news():
                 future = executor.submit(single_keyword_scrape, short_name, url)
                 stock_futures[future] = (short_name, full_name, url)
 
-        # for symbol in symbols:
-        #     short_name = symbol.name
-        #     full_name = symbol.full_name
-
-        #     for url in news_urls:
-        #         future = executor.submit(scrape_news, full_name, url)
-        #         news_futures[future] = (short_name, full_name, url)
-
         for future in concurrent.futures.as_completed(stock_futures):
             try:
                 short_name, full_name, url = stock_futures[future]
@@ -72,35 +50,17 @@ def stock_news():
                     stock_list.extend(result)
             except Exception as e:
                 print(f"Stock news error: {e}")
-
-        # for future in concurrent.futures.as_completed(news_futures):
-        #     try:
-        #         short_name, full_name, url = news_futures[future]
-        #         result = future.result()
-
-        #         if isinstance(result, list) and result:
-        #             for item in result:
-        #                 item["symbol"] = short_name
-        #                 item["full_name"] = full_name
-        #             news_list.extend(result)
-        #     except Exception as e:
-        #         print(f"General news error: {e}")
-
-    # all_items = stock_list + news_list
-    all_items = stock_list
-    for item in all_items:
+    for item in stock_list:
         if not StockRecord.objects.filter(url=item["url"]).exists():
-            symbols = Symbol.objects.filter(name=item["symbol"])
-            stock_record = StockRecord.objects.create(
-                title=item["title"],
-                url=item["url"],
-                summary=item["summary"],
-                date=item["date"],
-            )
-            stock_record.symbol.set(symbols)
-            if "full_name" in item:
-                stock_record.full_name = item["full_name"]
-            stock_record.save()
+            symbol_instance = Symbol.objects.filter(name=item["symbol"]).first()
+            if symbol_instance:
+                stock_record = StockRecord.objects.create(
+                    symbol=symbol_instance,
+                    title=item.get("title", ""),
+                    url=item["url"],
+                    summary=item.get("summary", ""),
+                    date=item.get("date", None),
+                )
 
     finish = time.perf_counter()
     print(f"Finished in {round(finish - start, 2)} seconds")
@@ -270,41 +230,6 @@ def detail_content(driver, rule):
     return content
 
 
-def keyword_data(symbol, keyword_list=None):
-    matched_records = []
-    translator = Translator()
-
-    data = StockRecord.objects.filter(symbol=symbol)
-    translated_keywords = {}
-
-    if keyword_list:
-        for keyword in keyword_list:
-            translated_en, translated_ne = translate_text(keyword, translator)
-            translated_keywords[translated_en] = translated_ne
-
-    for record in data:
-        title = record.title
-        summary = record.summary
-
-        if not keyword_list:
-            translated_title, _ = translate_text(title, translator)
-            translated_summary, _ = translate_text(summary, translator)
-            matched_records.append(
-                {"title": translated_title, "summary": translated_summary}
-            )
-        else:
-            for org_keyword, trans_keyword in translated_keywords.items():
-                if org_keyword in title or trans_keyword in title:
-                    translated_title, _ = translate_text(title, translator)
-                    translated_summary, _ = translate_text(summary, translator)
-                    matched_records.append(
-                        {"title": translated_title, "summary": translated_summary}
-                    )
-    df = pd.DataFrame(matched_records)
-    result = apply_sentiment(df)
-    return result
-
-
 def sentiment_score_vader(sentence):
     analyze = SentimentIntensityAnalyzer()
     sentiment_dict = analyze.polarity_scores(sentence)
@@ -325,7 +250,9 @@ def sentiment_label(score, method="vader"):
 
 
 def apply_sentiment(data):
-    result = data.values()
+    result = data.values(
+        "symbol__name", "symbol__sector__sector", "title", "summary", "date"
+    )
     df = pd.DataFrame(result)
     df["sentiment_score_title_vader"] = df["title"].apply(sentiment_score_vader)
     df["sentiment_score_summary_vade"] = df["summary"].apply(sentiment_score_vader)
@@ -348,9 +275,13 @@ def apply_sentiment(data):
         lambda x: sentiment_label(x, method="textblob")
     )
     df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    df["symbol_name"] = df["symbol__name"]
+    df["sector"] = df["symbol__sector__sector"]
 
     result_df = df[
         [
+            "symbol_name",
+            "sector",
             "date",
             "title",
             "summary",

@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .views import SentimentListAPIView, StockListAPIView
+from .views import SentimentListAPIView, StockListAPIView, SymbolListAPIView
 
 urlpatterns = [
     path("", StockListAPIView.as_view(), name="stock-api"),
+    path("symbols/", SymbolListAPIView.as_view(), name="symbol-list"),
     path("sentiment/", SentimentListAPIView.as_view(), name="sentiment-api"),
 ]

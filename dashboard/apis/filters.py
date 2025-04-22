@@ -1,12 +1,20 @@
 from django import forms
 from django_filters import rest_framework as filters
-from dashboard.models import StockRecord
+
+from dashboard.models import Sector, StockRecord, Symbol
 
 
 class StockRecordFilter(filters.FilterSet):
-    symbol = filters.CharFilter(
-        field_name="symbol__name", lookup_expr="icontains", label="Symbol"
+    symbol = filters.ModelChoiceFilter(
+        queryset=Symbol.objects.all(), field_name="symbol", label="Symbol"
     )
+
+    sector = filters.ModelChoiceFilter(
+        queryset=Sector.objects.all(),
+        field_name="symbol__sector__sector",
+        label="Sector",
+    )
+
     date_after = filters.DateFilter(
         field_name="date",
         lookup_expr="gte",

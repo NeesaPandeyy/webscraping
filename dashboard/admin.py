@@ -4,22 +4,11 @@ import requests
 from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import path
 from dotenv import load_dotenv
 
-from scraper.services import keyword_data
-
-from .models import (
-    Keyword,
-    NewsURL,
-    NewsURLRule,
-    StockNewsURL,
-    StockNewsURLRule,
-    StockRecord,
-    Symbol,
-    SymbolKeywordRelation,
-)
+from .models import (NewsURL, NewsURLRule, Sector, StockNewsURL,
+                     StockNewsURLRule, StockRecord, Symbol)
 
 load_dotenv()
 
@@ -31,15 +20,13 @@ class StockKeywordAutoCompleteFilter(AutocompleteFilter):
     field_name = "symbol"
 
 
-class KeywordAutoCompleteFilter(AutocompleteFilter):
-    title = "Keyword"
-    field_name = "keywords"
+@admin.register(Sector)
+class SectorlAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    search_fields = ("name",)
 
-
-@admin.register(Keyword)
-class KeywordsAdmin(admin.ModelAdmin):
-    list_display = ["keyword"]
-    search_fields = ("keyword",)
+    def __str__(self):
+        return self.name
 
 
 @admin.register(Symbol)
@@ -72,27 +59,41 @@ class SymbolAdmin(admin.ModelAdmin):
             if response.status_code == 200:
                 data = response.json()
                 symbols = data.get("results", [])
-                for symbol in symbols:
-                    Symbol.objects.update_or_create(
-                        name=symbol["symbol"], defaults={"full_name": symbol["name"]}
-                    )
-                pagination = data.get("pagination", {})
-                url = pagination.get("next")
+                for item in symbols:
+                    # handle sector creation or update
+                    sector_data = item.get("sector")
+                    sector_instance = None
+                    if sector_data:
+                        sector_instance, _ = Sector.objects.get_or_create(
+                            sector=sector_data["symbol"],
+                            defaults={"name": sector_data["name"]},
+                        )
 
-    def fetch_from_api_action(self, request, querset):
+                    # handle symbol creation or update
+                    Symbol.objects.update_or_create(
+                        name=item["symbol"],
+                        defaults={"full_name": item["name"], "sector": sector_instance},
+                    )
+
+                url = data.get("pagination", {}).get("next")
+            else:
+                break
+
+    def fetch_from_api_action(self, request, queryset):
         self.fetch_from_api()
-        self.message_user(request, "data fetched successfully.")
+        self.message_user(request, "Data fetched successfully.")
 
 
 @admin.register(StockRecord)
 class StockRecordAdmin(admin.ModelAdmin):
+    list_per_page = 10
     list_display = ("get_symbols", "title", "url", "summary", "date")
     list_filter = ("symbol", "date")
     autocomplete_fields = ("symbol",)
     search_fields = ("title",)
 
     def get_symbols(self, obj):
-        return ", ".join(obj.symbol.values_list("name", flat=True))
+        return obj.symbol.name
 
     get_symbols.short_description = "Symbols"
 
@@ -113,31 +114,3 @@ admin.site.register(NewsURL)
 admin.site.register(StockNewsURL)
 # admin.site.register(NewsURLRule)
 # admin.site.register(StockNewsURLRule)
-
-
-@admin.register(SymbolKeywordRelation)
-class SymbolKeywordRelationAdmin(admin.ModelAdmin):
-    list_display = ("symbol", "get_keywords")
-    list_filter = (KeywordAutoCompleteFilter, StockKeywordAutoCompleteFilter)
-    search_fields = ("keywords__keyword", "symbol")
-    autocomplete_fields = ("symbol", "keywords")
-
-    def get_keywords(self, obj):
-        return ", ".join([keyword.keyword for keyword in obj.keywords.all()])
-
-    get_keywords.short_description = "Keywords"
-
-    change_form_template = "admin/button.html"
-
-    def response_change(self, request, obj):
-        if "_generate" in request.POST:
-            pk = obj.pk
-            records = get_object_or_404(SymbolKeywordRelation, pk=pk)
-            keywords = [kw.keyword for kw in records.keywords.all()]
-            if not keywords:
-                matched_news = keyword_data(records.symbol, None)
-            else:
-                matched_news = keyword_data(records.symbol, keywords)
-
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        return super().response_change(request, obj)

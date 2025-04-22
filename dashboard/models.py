@@ -1,19 +1,24 @@
 from django.db import models
 
 
+class Sector(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=225, unique=True)
+    sector = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.sector
+
+
 class Symbol(models.Model):
     name = models.CharField(max_length=50, unique=True)
     full_name = models.CharField(max_length=255)
+    sector = models.ForeignKey(
+        Sector, on_delete=models.CASCADE, related_name="sectortype", null=True
+    )
 
     def __str__(self):
-        return f"{self.name} ({self.full_name})"
-
-
-class Keyword(models.Model):
-    keyword = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.keyword
+        return self.name
 
 
 class NewsURL(models.Model):
@@ -36,16 +41,6 @@ class NewsURLRule(models.Model):
 
     def __str__(self):
         return str(self.url)
-
-
-class SymbolKeywordRelation(models.Model):
-    symbol = models.ForeignKey(
-        Symbol, on_delete=models.CASCADE, related_name="stock_symbols"
-    )
-    keywords = models.ManyToManyField(Keyword, related_name="news_keywords", blank=True)
-
-    def __str__(self):
-        return f"{self.symbol} - {', '.join([keyword.keyword for keyword in self.keywords.all()])}"
 
 
 class StockNewsURL(models.Model):
@@ -74,11 +69,11 @@ class StockNewsURLRule(models.Model):
 
 
 class StockRecord(models.Model):
-    symbol = models.ManyToManyField(Symbol, related_name="symbol")
+    symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name="symbol")
     title = models.CharField(max_length=500)
     summary = models.TextField(blank=True, null=True)
     url = models.URLField(max_length=500)
     date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return ", ".join(self.symbol.values_list("name", flat=True))
+        return str(self.symbol)

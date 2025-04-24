@@ -2,8 +2,13 @@ import concurrent.futures
 import datetime
 import re
 import time
+import os
 
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  
+import matplotlib.pyplot as plt
+import seaborn as sns
 from celery import shared_task
 from googletrans import Translator
 from selenium.webdriver.common.by import By
@@ -292,4 +297,30 @@ def apply_sentiment(data):
         ]
     ]
     result_json = result_df.to_json(orient="records", force_ascii=False)
+    plot_chart(result_df)
     return result_json
+
+def plot_chart(df):
+    plt.figure(figsize=(12,6))
+
+    plt.subplot(2,2,1)
+    sns.countplot(x=df['Title_sentiment_vader'],color="blue")
+    plt.title("Title sentiment using vader")
+
+    plt.subplot(2, 2, 2)
+    sns.countplot(x=df["Summary_sentiment_vader"], color="green")
+    plt.title("Summary Sentiment using vader")
+
+    plt.subplot(2,2,3)
+    sns.countplot(x=df['Title_sentiment_textblob'],color="blue")
+    plt.title("Title sentiment using textblob")
+
+    plt.subplot(2, 2, 4)
+    sns.countplot(x=df["Summary_sentiment_textblob"], color="green")
+    plt.title("Summary Sentiment using textblob")
+    
+    plt.tight_layout()
+    output_path = os.path.join("dashboard/static/dashboard", "plotchart.png")
+    plt.savefig(output_path)
+    plt.close()
+

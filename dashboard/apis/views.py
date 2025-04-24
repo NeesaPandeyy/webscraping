@@ -1,4 +1,7 @@
 import json
+from django.templatetags.static import static
+from rest_framework.response import Response
+
 
 from django_filters import rest_framework as filters
 from rest_framework import generics
@@ -41,5 +44,11 @@ class SentimentListAPIView(generics.ListAPIView):
         result_json = apply_sentiment(queryset)
         result = json.loads(result_json)
 
+        chart_url = request.build_absolute_uri(static("dashboard/plotchart.png"))
+
         page = self.paginate_queryset(result)
-        return self.get_paginated_response(page)
+        paginated_data = self.get_paginated_response(page).data
+        paginated_data["chart_url"] = chart_url
+
+        return Response(paginated_data)
+        

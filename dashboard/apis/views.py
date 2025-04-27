@@ -1,11 +1,12 @@
 import json
+
 from django.templatetags.static import static
-from rest_framework.response import Response
-
-
 from django_filters import rest_framework as filters
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from dashboard.apis.filters import StockRecordFilter
 from dashboard.models import StockRecord, Symbol
@@ -30,6 +31,8 @@ class StockListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StockRecordFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class SentimentListAPIView(generics.ListAPIView):
@@ -38,6 +41,8 @@ class SentimentListAPIView(generics.ListAPIView):
     filterset_class = StockRecordFilter
     pagination_class = CustomPagination
     queryset = StockRecord.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -51,4 +56,3 @@ class SentimentListAPIView(generics.ListAPIView):
         paginated_data["chart_url"] = chart_url
 
         return Response(paginated_data)
-        

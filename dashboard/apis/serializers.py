@@ -1,8 +1,8 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from dashboard.models import StockRecord, Symbol
 
-from django.conf import settings
 
 class SymbolSerializer(serializers.ModelSerializer):
     sector_type = serializers.CharField(source="sector.sector", read_only=True)
@@ -23,7 +23,7 @@ class StockRecordSerializer(serializers.ModelSerializer):
 class SentimentSerializer(serializers.Serializer):
     symbol = serializers.CharField(required=False)
     sector_type = serializers.CharField(source="symbol.sector.sector", read_only=True)
-    image_url = serializers.SerializerMethodField('get_image_url')
+    image_url = serializers.SerializerMethodField("get_image_url")
 
     def validate_symbol(self, value):
         if not Symbol.objects.filter(name=value).exists():
@@ -32,8 +32,8 @@ class SentimentSerializer(serializers.Serializer):
 
     def get_symbol_obj(self):
         return Symbol.objects.get(name=self.validated_data["symbol"])
-    
+
     def get_image_url(self, obj):
-            if obj.image:
-                return settings.MEDIA_URL + str(obj.image)
-            return None
+        if obj.image:
+            return settings.MEDIA_URL + str(obj.image)
+        return None

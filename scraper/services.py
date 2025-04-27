@@ -1,12 +1,13 @@
 import concurrent.futures
 import datetime
+import os
 import re
 import time
-import os
 
-import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  
+import pandas as pd
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 from celery import shared_task
@@ -16,8 +17,8 @@ from selenium.webdriver.common.keys import Keys
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from dashboard.models import (NewsURL, NewsURLRule, StockNewsURL,
-                              StockNewsURLRule, StockRecord, Symbol)
+from dashboard.models import (NewsURLRule, StockNewsURL, StockNewsURLRule,
+                              StockRecord, Symbol)
 
 from .utils import (date_convertor, dropdown_control, handle_alert, news_block,
                     regex_search_button, start_selenium, translate_text)
@@ -26,14 +27,12 @@ from .utils import (date_convertor, dropdown_control, handle_alert, news_block,
 @shared_task(name="scheduling")
 def stock_news():
     symbols = Symbol.objects.all()
-    news_urls = NewsURL.objects.all()
     stock_urls = StockNewsURL.objects.all()
     start = time.perf_counter()
     stock_list = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         stock_futures = {}
-        news_futures = {}
 
         for symbol in symbols:
             short_name = symbol.name
@@ -300,27 +299,27 @@ def apply_sentiment(data):
     plot_chart(result_df)
     return result_json
 
-def plot_chart(df):
-    plt.figure(figsize=(12,6))
 
-    plt.subplot(2,2,1)
-    sns.countplot(x=df['Title_sentiment_vader'],color="blue")
+def plot_chart(df):
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(2, 2, 1)
+    sns.countplot(x=df["Title_sentiment_vader"], color="blue")
     plt.title("Title sentiment using vader")
 
     plt.subplot(2, 2, 2)
     sns.countplot(x=df["Summary_sentiment_vader"], color="green")
     plt.title("Summary Sentiment using vader")
 
-    plt.subplot(2,2,3)
-    sns.countplot(x=df['Title_sentiment_textblob'],color="blue")
+    plt.subplot(2, 2, 3)
+    sns.countplot(x=df["Title_sentiment_textblob"], color="blue")
     plt.title("Title sentiment using textblob")
 
     plt.subplot(2, 2, 4)
     sns.countplot(x=df["Summary_sentiment_textblob"], color="green")
     plt.title("Summary Sentiment using textblob")
-    
+
     plt.tight_layout()
     output_path = os.path.join("dashboard/static/dashboard", "plotchart.png")
     plt.savefig(output_path)
     plt.close()
-

@@ -4,24 +4,23 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('dashboard', '0001_initial'),
+        ("dashboard", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='symbolkeywordrelation',
-            name='keywords',
+            model_name="symbolkeywordrelation",
+            name="keywords",
         ),
         migrations.RemoveField(
-            model_name='symbolkeywordrelation',
-            name='symbol',
+            model_name="symbolkeywordrelation",
+            name="symbol",
         ),
         migrations.DeleteModel(
-            name='Keyword',
+            name="Keyword",
         ),
         migrations.DeleteModel(
-            name='SymbolKeywordRelation',
+            name="SymbolKeywordRelation",
         ),
     ]

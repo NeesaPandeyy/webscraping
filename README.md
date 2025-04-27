@@ -1,4 +1,4 @@
- Django Stock News Sentiment Analysis
+## Django Stock News Sentiment Analysis
 
 A Django-based stock news platform that automatically scrapes news articles from configurable URLs, performs sentiment analysis, and shows results via a REST API. The project uses **Selenium** for scraping, **Celery** for daily task scheduling, and **TextBlob + VADER** for sentiment analysis. It features a clean admin panel for managing sources and supports filtering results by symbol, sector, and date.
 

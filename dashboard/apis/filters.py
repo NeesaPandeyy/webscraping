@@ -6,8 +6,8 @@ from dashboard.models import Sector, StockRecord, Symbol
 
 class StockRecordFilter(filters.FilterSet):
     symbol = filters.ModelChoiceFilter(
-        queryset=Symbol.objects.all(), 
-        field_name="symbol", 
+        queryset=Symbol.objects.all(),
+        field_name="symbol",
         label="Symbol",
     )
 

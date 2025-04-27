@@ -1,6 +1,6 @@
 digraph model_graph {
   // Dotfile by Django-Extensions graph_models
-  // Created: 2025-04-22 13:29
+  // Created: 2025-04-25 15:30
   // Cli Options: dashboard
 
   fontname = "Roboto"
@@ -90,32 +90,6 @@ digraph model_graph {
   
     <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT FACE="Roboto">name</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  dashboard_models_Keyword [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    Keyword
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>BigAutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">keyword</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT FACE="Roboto">CharField</FONT>
     </TD></TR>
@@ -218,32 +192,6 @@ digraph model_graph {
     <FONT COLOR="#7B7B7B" FACE="Roboto">summary_class</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  dashboard_models_SymbolKeywordRelation [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    SymbolKeywordRelation
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>BigAutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>symbol</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
     </TD></TR>
   
   
@@ -391,6 +339,14 @@ digraph model_graph {
   
   
     <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>symbol</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
     <FONT COLOR="#7B7B7B" FACE="Roboto">date</FONT>
     </TD><TD ALIGN="LEFT">
     <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
@@ -435,17 +391,11 @@ digraph model_graph {
   dashboard_models_NewsURLRule -> dashboard_models_NewsURL
   [label=" url (news_rules)"] [arrowhead=none, arrowtail=dot, dir=both];
 
-  dashboard_models_SymbolKeywordRelation -> dashboard_models_Symbol
-  [label=" symbol (stock_symbols)"] [arrowhead=none, arrowtail=dot, dir=both];
-
-  dashboard_models_SymbolKeywordRelation -> dashboard_models_Keyword
-  [label=" keywords (news_keywords)"] [arrowhead=dot arrowtail=dot, dir=both];
-
   dashboard_models_StockNewsURLRule -> dashboard_models_StockNewsURL
   [label=" url (rules)"] [arrowhead=none, arrowtail=dot, dir=both];
 
   dashboard_models_StockRecord -> dashboard_models_Symbol
-  [label=" symbol (symbol)"] [arrowhead=dot arrowtail=dot, dir=both];
+  [label=" symbol (symbol)"] [arrowhead=none, arrowtail=dot, dir=both];
 
 
 }

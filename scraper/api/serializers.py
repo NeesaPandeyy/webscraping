@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 
-from dashboard.models import StockRecord, Symbol
+from scraper.models import StockRecord, Symbol
 
 
 class SymbolSerializer(serializers.ModelSerializer):

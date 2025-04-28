@@ -7,4 +7,4 @@ from .models import StockRecord
 class HomeView(View):
     def get(self, request):
         data = StockRecord.objects.all()
-        return render(request, "dashboard/home.html", {"data": data})
+        return render(request, "scraper/home.html", {"data": data})

@@ -7,8 +7,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
 
-from .models import (NewsURL, NewsURLRule, Sector, StockNewsURL,
-                     StockNewsURLRule, StockRecord, Symbol)
+from .models import Sector, StockNewsURL, StockNewsURLRule, StockRecord, Symbol
 
 load_dotenv()
 
@@ -34,7 +33,7 @@ class SymbolAdmin(admin.ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
 
-    change_list_template = "admin/symbol_list.html"
+    change_list_template = "scraper/symbol_list.html"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -60,7 +59,6 @@ class SymbolAdmin(admin.ModelAdmin):
                 data = response.json()
                 symbols = data.get("results", [])
                 for item in symbols:
-                    # handle sector creation or update
                     sector_data = item.get("sector")
                     sector_instance = None
                     if sector_data:
@@ -69,7 +67,6 @@ class SymbolAdmin(admin.ModelAdmin):
                             defaults={"name": sector_data["name"]},
                         )
 
-                    # handle symbol creation or update
                     Symbol.objects.update_or_create(
                         name=item["symbol"],
                         defaults={"full_name": item["name"], "sector": sector_instance},
@@ -98,19 +95,12 @@ class StockRecordAdmin(admin.ModelAdmin):
     get_symbols.short_description = "Symbols"
 
 
-@admin.register(NewsURLRule)
-class NewsURLRuleAdmin(admin.ModelAdmin):
-    list_display = ["url"]
-    search_fields = ("url",)
-
-
 @admin.register(StockNewsURLRule)
 class StockNewsURLRuleAdmin(admin.ModelAdmin):
     list_display = ["url"]
     search_fields = ("url",)
 
 
-admin.site.register(NewsURL)
 admin.site.register(StockNewsURL)
 # admin.site.register(NewsURLRule)
 # admin.site.register(StockNewsURLRule)

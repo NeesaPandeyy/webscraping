@@ -1,7 +1,7 @@
 from django import forms
 from django_filters import rest_framework as filters
 
-from dashboard.models import Sector, StockRecord, Symbol
+from scraper.models import Sector, StockRecord, Symbol
 
 
 class StockRecordFilter(filters.FilterSet):
@@ -15,6 +15,12 @@ class StockRecordFilter(filters.FilterSet):
         queryset=Sector.objects.all(),
         field_name="symbol__sector__sector",
         label="Sector",
+    )
+    date = filters.DateFilter(
+        field_name="date",
+        lookup_expr="exact",
+        label="Date",
+        widget=forms.DateInput(attrs={"type": "date"}),
     )
 
     date_after = filters.DateFilter(
@@ -32,4 +38,4 @@ class StockRecordFilter(filters.FilterSet):
 
     class Meta:
         model = StockRecord
-        fields = ["symbol", "date_after", "date_before"]
+        fields = ["symbol","date", "date_after", "date_before"]

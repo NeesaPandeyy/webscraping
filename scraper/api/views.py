@@ -8,9 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from dashboard.apis.filters import StockRecordFilter
-from dashboard.models import StockRecord, Symbol
-from scraper.services import apply_sentiment
+from scraper.api.filters import StockRecordFilter
+from scraper.models import StockRecord, Symbol
+from scraper.services import SentimentAnalysis
 
 from .serializers import (SentimentSerializer, StockRecordSerializer,
                           SymbolSerializer)
@@ -31,8 +31,8 @@ class StockListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StockRecordFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
 
 class SentimentListAPIView(generics.ListAPIView):
@@ -41,15 +41,15 @@ class SentimentListAPIView(generics.ListAPIView):
     filterset_class = StockRecordFilter
     pagination_class = CustomPagination
     queryset = StockRecord.objects.all()
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        result_json = apply_sentiment(queryset)
+        result_json = SentimentAnalysis.apply_sentiment(queryset)
         result = json.loads(result_json)
 
-        chart_url = request.build_absolute_uri(static("dashboard/plotchart.png"))
+        chart_url = request.build_absolute_uri(static("admin/plotchart.png"))
 
         page = self.paginate_queryset(result)
         paginated_data = self.get_paginated_response(page).data

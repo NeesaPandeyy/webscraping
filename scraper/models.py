@@ -1,4 +1,7 @@
 from django.db import models
+from django.utils.text import slugify
+
+from core.models import TimestampAbstractModel
 
 
 class Sector(models.Model):
@@ -16,6 +19,13 @@ class Symbol(models.Model):
     sector = models.ForeignKey(
         Sector, on_delete=models.CASCADE, related_name="sectortype", null=True
     )
+
+    def __str__(self):
+        return self.name
+
+
+class Keyword(models.Model):
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -48,6 +58,7 @@ class StockNewsURLRule(models.Model):
 
 class StockRecord(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name="symbol")
+    keywords = models.ManyToManyField(Keyword, related_name="keywords", blank=True)
     title = models.CharField(max_length=500)
     summary = models.TextField(blank=True, null=True)
     url = models.URLField(max_length=500)
@@ -55,3 +66,17 @@ class StockRecord(models.Model):
 
     def __str__(self):
         return str(self.symbol)
+
+
+class News(TimestampAbstractModel, models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    slug = models.SlugField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

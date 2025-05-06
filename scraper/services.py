@@ -15,8 +15,7 @@ from selenium.webdriver.common.by import By
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from scraper.models import (StockNewsURL, StockNewsURLRule, StockRecord,
-                              Symbol)
+from scraper.models import StockNewsURL, StockNewsURLRule, StockRecord, Symbol
 
 from .utils import DateConvertor, NewsScraping, SeleniumDriver, TextTranslator
 
@@ -283,6 +282,6 @@ class SentimentAnalysis:
         plt.title("Summary Sentiment using textblob")
 
         plt.tight_layout()
-        output_path = os.path.join("admin/static/admin", "plotchart.png")
+        output_path = os.path.join("scraper/static/scraper", "plotchart.png")
         plt.savefig(output_path)
         plt.close()

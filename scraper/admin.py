@@ -7,7 +7,15 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
 
-from .models import Sector, StockNewsURL, StockNewsURLRule, StockRecord, Symbol
+from .models import (
+    Keyword,
+    News,
+    Sector,
+    StockNewsURL,
+    StockNewsURLRule,
+    StockRecord,
+    Symbol,
+)
 
 load_dotenv()
 
@@ -20,7 +28,16 @@ class StockKeywordAutoCompleteFilter(AutocompleteFilter):
 
 
 @admin.register(Sector)
-class SectorlAdmin(admin.ModelAdmin):
+class SectorAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    search_fields = ("name",)
+
+    def __str__(self):
+        return self.name
+
+
+@admin.register(Keyword)
+class KeywordAdmin(admin.ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
 
@@ -85,9 +102,9 @@ class SymbolAdmin(admin.ModelAdmin):
 class StockRecordAdmin(admin.ModelAdmin):
     list_per_page = 10
     list_display = ("get_symbols", "title", "url", "summary", "date")
-    list_filter = ("symbol", "date")
+    list_filter = ("symbol", "date", "keywords")
     autocomplete_fields = ("symbol",)
-    search_fields = ("title",)
+    search_fields = ("title", "keywords__name")
 
     def get_symbols(self, obj):
         return obj.symbol.name
@@ -101,6 +118,10 @@ class StockNewsURLRuleAdmin(admin.ModelAdmin):
     search_fields = ("url",)
 
 
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ["title", "description"]
+
+    change_form_template = "scraper/form.html"
+    
 admin.site.register(StockNewsURL)
-# admin.site.register(NewsURLRule)
-# admin.site.register(StockNewsURLRule)

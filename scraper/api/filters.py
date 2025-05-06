@@ -1,7 +1,20 @@
 from django import forms
+from django.db.models import Q
 from django_filters import rest_framework as filters
 
-from scraper.models import Sector, StockRecord, Symbol
+from scraper.models import Keyword, Sector, StockRecord, Symbol
+
+
+class CustomFilter(filters.CharFilter):
+    def filter(self, queryset, value):
+        values = [v.strip() for v in value.split(",") if v.strip()]
+        if not value:
+            return queryset
+
+        query = Q()
+        for val in values:
+            query |= Q(title__icontains=val)
+        return queryset.filter(query)
 
 
 class StockRecordFilter(filters.FilterSet):
@@ -35,7 +48,24 @@ class StockRecordFilter(filters.FilterSet):
         label="To Date",
         widget=forms.DateInput(attrs={"type": "date"}),
     )
+    title = CustomFilter(
+        field_name="title",
+        lookup_expr="icontains",
+        label="title",
+    )
+    keyword = filters.ModelChoiceFilter(
+        queryset=Keyword.objects.all(),
+        method="filter_with_keyword",
+        field_name="name",
+        label="Keyword",
+    )
+
+    def filter_with_keyword(self, queryset, name, value):
+        matched_news = queryset.filter(
+            Q(title__icontains=value.name) | Q(summary__icontains=value.name)
+        )
+        return matched_news
 
     class Meta:
         model = StockRecord
-        fields = ["symbol","date", "date_after", "date_before"]
+        fields = ["symbol", "date", "date_after", "date_before", "keyword"]

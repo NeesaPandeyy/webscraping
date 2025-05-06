@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework.authtoken",
     "drf_yasg",
+    "django_elasticsearch_dsl",
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -162,8 +164,8 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
 
@@ -187,3 +189,9 @@ SWAGGER_SETTINGS = {
         },
     },
 }
+
+# elastic-search
+ELASTICSEARCH_DSL = {"default": {"hosts": "http://localhost:9200"}}
+
+# ckeditor
+CKEDITOR_BASEPATH = "/my_static/ckeditor/ckeditor/"

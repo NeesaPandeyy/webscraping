@@ -1,0 +1,17 @@
+from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl.registries import registry
+
+from .models import StockRecord
+
+
+@registry.register_document
+class StockRecordDocument(Document):
+    symbol = fields.TextField(attr="symbol.name")
+
+    class Index:
+        name = "stockrecord"
+        settings = {"number_of_shards": 1, "number_of_replicas": 0}
+
+    class Django:
+        model = StockRecord
+        fields = ["title", "url", "summary", "date"]

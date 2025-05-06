@@ -5,62 +5,120 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Sector',
+            name="Sector",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=225, unique=True)),
-                ('sector', models.CharField(max_length=50, unique=True)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=225, unique=True)),
+                ("sector", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='StockNewsURL',
+            name="StockNewsURL",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField(unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("url", models.URLField(unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='StockNewsURLRule',
+            name="StockNewsURLRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('click_button', models.CharField(blank=True, max_length=150, null=True)),
-                ('main_div', models.CharField(blank=True, max_length=50, null=True)),
-                ('div_list', models.CharField(blank=True, max_length=100, null=True)),
-                ('tbody', models.CharField(blank=True, max_length=50, null=True)),
-                ('rows', models.CharField(blank=True, max_length=50, null=True)),
-                ('uploaded', models.CharField(blank=True, max_length=50, null=True)),
-                ('headline', models.CharField(blank=True, max_length=50, null=True)),
-                ('summary_id', models.CharField(blank=True, max_length=50, null=True)),
-                ('summary_class', models.CharField(blank=True, max_length=50, null=True)),
-                ('url', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rules', to='scraper.stocknewsurl')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "click_button",
+                    models.CharField(blank=True, max_length=150, null=True),
+                ),
+                ("main_div", models.CharField(blank=True, max_length=50, null=True)),
+                ("div_list", models.CharField(blank=True, max_length=100, null=True)),
+                ("tbody", models.CharField(blank=True, max_length=50, null=True)),
+                ("rows", models.CharField(blank=True, max_length=50, null=True)),
+                ("uploaded", models.CharField(blank=True, max_length=50, null=True)),
+                ("headline", models.CharField(blank=True, max_length=50, null=True)),
+                ("summary_id", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "summary_class",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                (
+                    "url",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rules",
+                        to="scraper.stocknewsurl",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Symbol',
+            name="Symbol",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('full_name', models.CharField(max_length=255)),
-                ('sector', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sectortype', to='scraper.sector')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                ("full_name", models.CharField(max_length=255)),
+                (
+                    "sector",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sectortype",
+                        to="scraper.sector",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='StockRecord',
+            name="StockRecord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=500)),
-                ('summary', models.TextField(blank=True, null=True)),
-                ('url', models.URLField(max_length=500)),
-                ('date', models.DateField(blank=True, null=True)),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='symbol', to='scraper.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=500)),
+                ("summary", models.TextField(blank=True, null=True)),
+                ("url", models.URLField(max_length=500)),
+                ("date", models.DateField(blank=True, null=True)),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="symbol",
+                        to="scraper.symbol",
+                    ),
+                ),
             ],
         ),
     ]

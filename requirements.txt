@@ -1,6 +1,8 @@
 Django==5.1.7
 django_admin_autocomplete_filter==0.7.1
-djangorestframework==3.16.0
+django_ckeditor_5==0.2.17
+django_elasticsearch_dsl==8.0
+django_mptt==0.17.0
 djangorestframework_simplejwt==5.5.0
 drf_yasg==1.21.10
 googletrans==4.0.0rc1
@@ -11,7 +13,7 @@ pandas==2.2.3
 python-dotenv==1.1.0
 Requests==2.32.3
 seaborn==0.13.2
-selenium==4.31.0
+selenium==4.32.0
 textblob==0.19.0
 vaderSentiment==3.3.2
 vaderSentiment==3.3.2

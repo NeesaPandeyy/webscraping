@@ -1,12 +1,8 @@
 from django.urls import path
 
-from .views import (
-    NewsListCreateAPIView,
-    NewsRetrieveUpdateDestroyAPIView,
-    SentimentListAPIView,
-    StockListAPIView,
-    SymbolListAPIView,
-)
+from .views import (AnnouncementListAPIView, NewsListCreateAPIView,
+                    NewsRetrieveUpdateDestroyAPIView, SentimentListAPIView,
+                    StockListAPIView, SymbolListAPIView)
 
 urlpatterns = [
     path("", StockListAPIView.as_view(), name="stock-api"),
@@ -18,4 +14,5 @@ urlpatterns = [
         NewsRetrieveUpdateDestroyAPIView.as_view(),
         name="newsedit-api",
     ),
+    path("announcement/", AnnouncementListAPIView.as_view(), name="announcement-api"),
 ]

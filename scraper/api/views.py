@@ -4,21 +4,16 @@ from django.templatetags.static import static
 from django_filters import rest_framework as filters
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from scraper.api.filters import StockRecordFilter
+from scraper.api.filters import AnnouncementFilter, StockRecordFilter
 from scraper.documents import StockRecordDocument
-from scraper.models import News, StockRecord, Symbol
+from scraper.models import Announcement, News, StockRecord, Symbol
 from scraper.services import SentimentAnalysis
 
-from .serializers import (
-    NewsSerializer,
-    SentimentSerializer,
-    StockRecordSerializer,
-    SymbolSerializer,
-)
+from .serializers import (AnnouncementSerializer, NewsSerializer,
+                          SentimentSerializer, StockRecordSerializer,
+                          SymbolSerializer)
 
 
 class CustomPagination(PageNumberPagination):
@@ -36,8 +31,8 @@ class StockListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StockRecordFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def get_queryset(self):
         query = self.request.GET.get("search")
@@ -57,8 +52,8 @@ class SentimentListAPIView(generics.ListAPIView):
     filterset_class = StockRecordFilter
     pagination_class = CustomPagination
     queryset = StockRecord.objects.all()
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -84,3 +79,11 @@ class NewsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NewsSerializer
     pagination_class = CustomPagination
     queryset = News.objects.all()
+
+
+class AnnouncementListAPIView(generics.ListAPIView):
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+    pagination_class = CustomPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = AnnouncementFilter

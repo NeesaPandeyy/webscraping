@@ -69,3 +69,25 @@ class StockRecordFilter(filters.FilterSet):
     class Meta:
         model = StockRecord
         fields = ["symbol", "date", "date_after", "date_before", "keyword"]
+
+
+class AnnouncementFilter(filters.FilterSet):
+    date = filters.DateFilter(
+        field_name="date",
+        lookup_expr="exact",
+        label="Date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+
+    date_after = filters.DateFilter(
+        field_name="date",
+        lookup_expr="gte",
+        label="From Date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    date_before = filters.DateFilter(
+        field_name="date",
+        lookup_expr="lte",
+        label="To Date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )

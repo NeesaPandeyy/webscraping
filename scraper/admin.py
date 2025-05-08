@@ -6,16 +6,10 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
+from mptt.admin import MPTTModelAdmin
 
-from .models import (
-    Keyword,
-    News,
-    Sector,
-    StockNewsURL,
-    StockNewsURLRule,
-    StockRecord,
-    Symbol,
-)
+from .models import (Announcement, Category, Keyword, News, NewsStatus, Sector,
+                     StockNewsURL, StockNewsURLRule, StockRecord, Symbol)
 
 load_dotenv()
 
@@ -120,8 +114,36 @@ class StockNewsURLRuleAdmin(admin.ModelAdmin):
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ["title", "description"]
+    list_display = ("title", "category", "status", "slug", "created_at")
+    list_filter = ("category", "status")
+    search_fields = ("title", "description")
+    actions = ["approve_news"]
 
-    change_form_template = "scraper/form.html"
-    
+    def approve_news(self, request, queryset):
+        updated = queryset.update(status=NewsStatus.PUBLISHED)
+        self.message_user(request, "Your post has been approved and published")
+
+    approve_news.short_description = "Mark selected news as Published"
+
+    def get_readonly_fields(self, request, obj=None):
+        if not request.user.is_superuser:
+            return ["status"]
+        return super().get_readonly_fields(request, obj)
+
+
+@admin.register(Category)
+class CategoryAdmin(MPTTModelAdmin):
+    list_display = ("name", "parent")
+    search_fields = ("name",)
+    mptt_level_indent = 20
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ("date", "url", "announcement")
+    search_fields = ("announcement",)
+    list_filter = ("date",)
+    ordering = ("-date",)
+
+
 admin.site.register(StockNewsURL)

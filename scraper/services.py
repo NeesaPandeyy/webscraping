@@ -15,12 +15,13 @@ from selenium.webdriver.common.by import By
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from scraper.models import StockNewsURL, StockNewsURLRule, StockRecord, Symbol
+from scraper.models import (Announcement, StockNewsURL, StockNewsURLRule,
+                            StockRecord, Symbol)
 
 from .utils import DateConvertor, NewsScraping, SeleniumDriver, TextTranslator
 
 
-class StockNewscore:
+class StockNews:
     def __init__(self):
         self.translator = Translator()
 
@@ -135,7 +136,7 @@ class StockNewscore:
                     link_url = row.get_attribute("href")
                     if not StockRecord.objects.filter(url=link_url).exists():
                         new_driver = SeleniumDriver.start_selenium(link_url)
-                        time.sleep(2)
+                        time.sleep(5)
                         content = self.detail_content(new_driver, rule)
                         all_news[link_url] = content
         except Exception as e:
@@ -285,3 +286,33 @@ class SentimentAnalysis:
         output_path = os.path.join("scraper/static/scraper", "plotchart.png")
         plt.savefig(output_path)
         plt.close()
+
+
+class AnnouncementScraper:
+    def extract_announcement(self):
+        driver = None
+        try:
+            url = os.getenv("ANNOUNCEMENT_LINK")
+            driver = SeleniumDriver.start_selenium(url)
+            div_list = driver.find_elements(By.CLASS_NAME, "media")
+            for div in div_list:
+                date = div.find_element(By.CLASS_NAME, "text-muted").text
+                date_obj = datetime.datetime.strptime(date, "%b %d, %Y")
+                formatted_date = date_obj.strftime("%Y-%m-%d")
+                link_element = div.find_element(By.TAG_NAME, "a")
+                link_url = link_element.get_attribute("href")
+                announcement = div.find_element(By.CLASS_NAME, "media-body").text
+                try:
+                    if not Announcement.objects.filter(url=link_url).first():
+                        Announcement.objects.create(
+                            date=formatted_date, url=link_url, announcement=announcement
+                        )
+                except Exception as e:
+                    print(f"Error saving announcement: {e}")
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return {}
+        finally:
+            if driver:
+                driver.quit()

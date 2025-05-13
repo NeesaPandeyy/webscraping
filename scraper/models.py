@@ -1,9 +1,4 @@
 from django.db import models
-from django.utils.text import slugify
-from django_ckeditor_5.fields import CKEditor5Field
-from mptt.models import MPTTModel, TreeForeignKey
-
-from core.models import TimestampAbstractModel
 
 
 class Sector(models.Model):
@@ -39,6 +34,10 @@ class StockNewsURL(models.Model):
     def __str__(self):
         return self.url
 
+    class Meta:
+        verbose_name = "StockNews URL"
+        verbose_name_plural = "StockNews URLs"
+
 
 class StockNewsURLRule(models.Model):
     url = models.ForeignKey(
@@ -57,6 +56,10 @@ class StockNewsURLRule(models.Model):
     def __str__(self):
         return str(self.url)
 
+    class Meta:
+        verbose_name = "StockNews URL Rule"
+        verbose_name_plural = "StockNews URL Rules"
+
 
 class StockRecord(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE, related_name="symbol")
@@ -69,50 +72,9 @@ class StockRecord(models.Model):
     def __str__(self):
         return str(self.symbol)
 
-
-class Category(MPTTModel):
-    name = models.CharField(max_length=50)
-    parent = TreeForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
-    )
-
-    def __str__(self):
-        return self.name
-
-    class MPTTMeta:
-        order_insertion_by = ["name"]
-
-
-class NewsStatus(models.TextChoices):
-    PUBLISHED = "published", "Published"
-    DRAFT = "draft", "Draft"
-    PENDING_REVIEW = "pending_review", "Pending Review"
-
-
-class News(TimestampAbstractModel, models.Model):
-    title = models.CharField(max_length=200)
-    description = CKEditor5Field("Content", config_name="extends")
-    category = TreeForeignKey(
-        "Category",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="news_category",
-    )
-    slug = models.SlugField(blank=True)
-    status = models.CharField(
-        max_length=20,
-        choices=NewsStatus.choices,
-        default=NewsStatus.DRAFT,
-    )
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.title
+    class Meta:
+        verbose_name = "Stock Record"
+        verbose_name_plural = "Stock Records"
 
 
 class Announcement(models.Model):

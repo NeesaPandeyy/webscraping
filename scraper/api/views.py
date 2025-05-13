@@ -3,21 +3,35 @@ import json
 from django.templatetags.static import static
 from django_filters import rest_framework as filters
 from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
+from core.pagination import CustomPagination
 from scraper.api.filters import AnnouncementFilter, StockRecordFilter
 from scraper.documents import StockRecordDocument
-from scraper.models import Announcement, News, StockRecord, Symbol
+from scraper.models import Announcement, StockRecord, Symbol
 from scraper.services import SentimentAnalysis
 
-from .serializers import (AnnouncementSerializer, NewsSerializer,
-                          SentimentSerializer, StockRecordSerializer,
-                          SymbolSerializer)
+from .serializers import (AnnouncementSerializer, SentimentSerializer,
+                          StockRecordSerializer, SymbolSerializer)
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 10
+class ScraperAPIRootView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format=None):
+        return Response(
+            {
+                "news": reverse("stock-api", request=request, format=format),
+                "symbols": reverse("symbol-list", request=request, format=format),
+                "sentiment": reverse("sentiment-api", request=request, format=format),
+                "announcement": reverse(
+                    "announcement-api", request=request, format=format
+                ),
+            }
+        )
 
 
 class SymbolListAPIView(generics.ListAPIView):
@@ -67,18 +81,6 @@ class SentimentListAPIView(generics.ListAPIView):
         paginated_data["chart_url"] = chart_url
 
         return Response(paginated_data)
-
-
-class NewsListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = NewsSerializer
-    pagination_class = CustomPagination
-    queryset = News.objects.all()
-
-
-class NewsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = NewsSerializer
-    pagination_class = CustomPagination
-    queryset = News.objects.all()
 
 
 class AnnouncementListAPIView(generics.ListAPIView):

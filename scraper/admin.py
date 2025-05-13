@@ -6,10 +6,9 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
-from mptt.admin import MPTTModelAdmin
 
-from .models import (Announcement, Category, Keyword, News, NewsStatus, Sector,
-                     StockNewsURL, StockNewsURLRule, StockRecord, Symbol)
+from .models import (Announcement, Keyword, Sector, StockNewsURL,
+                     StockNewsURLRule, StockRecord, Symbol)
 
 load_dotenv()
 
@@ -25,6 +24,7 @@ class StockKeywordAutoCompleteFilter(AutocompleteFilter):
 class SectorAdmin(admin.ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
+    list_filter = ("name",)
 
     def __str__(self):
         return self.name
@@ -34,6 +34,7 @@ class SectorAdmin(admin.ModelAdmin):
 class KeywordAdmin(admin.ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
+    list_filter = ("name",)
 
     def __str__(self):
         return self.name
@@ -43,6 +44,7 @@ class KeywordAdmin(admin.ModelAdmin):
 class SymbolAdmin(admin.ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
+    list_filter = ("name",)
 
     change_list_template = "scraper/symbol_list.html"
 
@@ -110,32 +112,6 @@ class StockRecordAdmin(admin.ModelAdmin):
 class StockNewsURLRuleAdmin(admin.ModelAdmin):
     list_display = ["url"]
     search_fields = ("url",)
-
-
-@admin.register(News)
-class NewsAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "status", "slug", "created_at")
-    list_filter = ("category", "status")
-    search_fields = ("title", "description")
-    actions = ["approve_news"]
-
-    def approve_news(self, request, queryset):
-        updated = queryset.update(status=NewsStatus.PUBLISHED)
-        self.message_user(request, "Your post has been approved and published")
-
-    approve_news.short_description = "Mark selected news as Published"
-
-    def get_readonly_fields(self, request, obj=None):
-        if not request.user.is_superuser:
-            return ["status"]
-        return super().get_readonly_fields(request, obj)
-
-
-@admin.register(Category)
-class CategoryAdmin(MPTTModelAdmin):
-    list_display = ("name", "parent")
-    search_fields = ("name",)
-    mptt_level_indent = 20
 
 
 @admin.register(Announcement)

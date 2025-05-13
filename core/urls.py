@@ -41,8 +41,11 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
+    path("api/", include("core.api.urls")),
     path("admin/", admin.site.urls),
-    path("", include("scraper.api.urls")),
+    path("accounts/", include("accounts.api.urls")),
+    path("stock/", include("scraper.api.urls")),
+    path("news/", include("news.api.urls")),
     path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("api-token-auth/", obtain_auth_token),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

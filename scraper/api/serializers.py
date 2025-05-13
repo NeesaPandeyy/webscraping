@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 
-from scraper.models import Announcement, News, StockRecord, Symbol
+from scraper.models import Announcement, StockRecord, Symbol
 
 
 class SymbolSerializer(serializers.ModelSerializer):
@@ -37,19 +37,6 @@ class SentimentSerializer(serializers.Serializer):
         if obj.image:
             return settings.MEDIA_URL + str(obj.image)
         return None
-
-
-class NewsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = News
-        fields = [
-            "title",
-            "description",
-            "category",
-            "slug",
-            "created_at",
-            "updated_at",
-        ]
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

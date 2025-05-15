@@ -13,7 +13,7 @@ class CustomFilter(filters.CharFilter):
 
         query = Q()
         for val in values:
-            query |= Q(title__icontains=val)
+            query |= Q(tags__icontains=val)
         return queryset.filter(query)
 
 
@@ -48,11 +48,11 @@ class StockRecordFilter(filters.FilterSet):
         label="To Date",
         widget=forms.DateInput(attrs={"type": "date"}),
     )
-    title = CustomFilter(
-        field_name="title",
-        lookup_expr="icontains",
-        label="title",
-    )
+    # title = CustomFilter(
+    #     field_name="title",
+    #     lookup_expr="icontains",
+    #     label="title",
+    # )
     keyword = filters.ModelChoiceFilter(
         queryset=Keyword.objects.all(),
         method="filter_with_keyword",
@@ -72,22 +72,8 @@ class StockRecordFilter(filters.FilterSet):
 
 
 class AnnouncementFilter(filters.FilterSet):
-    date = filters.DateFilter(
-        field_name="date",
-        lookup_expr="exact",
-        label="Date",
-        widget=forms.DateInput(attrs={"type": "date"}),
-    )
-
-    date_after = filters.DateFilter(
-        field_name="date",
-        lookup_expr="gte",
-        label="From Date",
-        widget=forms.DateInput(attrs={"type": "date"}),
-    )
-    date_before = filters.DateFilter(
-        field_name="date",
-        lookup_expr="lte",
-        label="To Date",
-        widget=forms.DateInput(attrs={"type": "date"}),
+    tags = CustomFilter(
+        field_name="tags",
+        lookup_expr="icontains",
+        label="tags",
     )

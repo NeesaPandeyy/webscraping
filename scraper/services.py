@@ -302,10 +302,26 @@ class AnnouncementScraper:
                 link_element = div.find_element(By.TAG_NAME, "a")
                 link_url = link_element.get_attribute("href")
                 announcement = div.find_element(By.CLASS_NAME, "media-body").text
+                if link_url:
+                    driver = SeleniumDriver.start_selenium(link_url)
+                    tags_list = driver.find_element(
+                        By.XPATH,
+                        "//*[@id='aspnetForm']/div[4]/div[5]/div/div/table/tbody/tr[5]/td[2]",
+                    ).text
+                    fields = [
+                        field.strip()
+                        for field in tags_list.split("    ")
+                        if field.strip()
+                    ]
+                    if driver:
+                        driver.quit()
                 try:
-                    if not Announcement.objects.filter(url=link_url).first():
+                    if not Announcement.objects.filter(url=link_url).exists():
                         Announcement.objects.create(
-                            date=formatted_date, url=link_url, announcement=announcement
+                            date=formatted_date,
+                            url=link_url,
+                            announcement=announcement,
+                            tags=fields,
                         )
                 except Exception as e:
                     print(f"Error saving announcement: {e}")

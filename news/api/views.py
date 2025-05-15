@@ -6,9 +6,9 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from news.api.filters import NewsFilter
-from news.models import Category, News
+from news.models import Category, Comment, News
 
-from .serializers import CategorySerializer, NewsSerializer
+from .serializers import CategorySerializer, CommentSerializer, NewsSerializer
 
 
 class NewsAPIRootView(APIView):
@@ -19,6 +19,7 @@ class NewsAPIRootView(APIView):
             {
                 "category": reverse("category-api", request=request, format=format),
                 "newslist": reverse("newslist-api", request=request, format=format),
+                "comment": reverse("comment-api", request=request, format=format),
             }
         )
 
@@ -36,3 +37,8 @@ class PublishedNewsView(generics.ListAPIView):
 class CategoryView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class CommentView(generics.ListAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer

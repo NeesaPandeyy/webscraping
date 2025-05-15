@@ -81,3 +81,4 @@ class Announcement(models.Model):
     date = models.DateField(null=True, blank=True)
     url = models.URLField(max_length=500)
     announcement = models.TextField(blank=True, null=True)
+    tags = models.JSONField(null=True, blank=True)

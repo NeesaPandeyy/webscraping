@@ -116,9 +116,9 @@ class StockNewsURLRuleAdmin(admin.ModelAdmin):
 
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
-    list_display = ("date", "url", "announcement")
-    search_fields = ("announcement",)
-    list_filter = ("date",)
+    list_display = ("date", "url", "announcement", "tags")
+    search_fields = ("announcement", "tags")
+    list_filter = ("date", "tags")
     ordering = ("-date",)
 
 

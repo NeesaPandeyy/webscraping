@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
@@ -47,6 +48,9 @@ class News(TimestampAbstractModel, models.Model):
         choices=NewsStatus.choices,
         default=NewsStatus.DRAFT,
     )
+    creator = models.ForeignKey(
+        User, on_delete=models.CASCADE, editable=False, related_name="created_by"
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -63,3 +67,17 @@ class News(TimestampAbstractModel, models.Model):
     class Meta:
         verbose_name = "News"
         verbose_name_plural = "News"
+
+
+class Comment(TimestampAbstractModel, MPTTModel):
+    post = models.ForeignKey(News, on_delete=models.CASCADE, related_name="comments")
+    body = models.TextField()
+    parent = TreeForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+    )
+
+    class MPTTMeta:
+        order_insertion_by = ["created_at"]
+
+    def __str__(self):
+        return self.body[:10]

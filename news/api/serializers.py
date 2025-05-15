@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 from rest_framework import serializers
 
-from news.models import Category, News
+from news.models import Category, Comment, News
 
 
 class NewsSerializer(serializers.ModelSerializer):
@@ -38,4 +38,20 @@ class NewsSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = [
+            "id",
+            "name",
+            "parent",
+        ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "post",
+            "parent",
+            "body",
+            "created_at",
+        ]

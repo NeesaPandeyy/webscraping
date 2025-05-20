@@ -38,6 +38,7 @@ class SeleniumDriver:
                 '//button[@type="button" and @class="close" and @aria-label="Close"]',
                 '//*[@id="roadblock-ad"]/div/div/i',
                 '//*[@id="ratopati-app"]/div[1]/section/div/div[2]/button',
+                '//*[@id="onesignal-slidedown-cancel-button"]',
             ]
             for xpath in close_xpaths:
                 try:

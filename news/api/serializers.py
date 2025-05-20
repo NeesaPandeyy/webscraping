@@ -2,12 +2,31 @@ import re
 from urllib.parse import urljoin
 
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Category, Comment, News
+from news.models import Category, Comment, NewsPost, Notification
 
 
-class NewsSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.CharField()
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "user",
+            "post",
+            "parent",
+            "body",
+            "created_at",
+        ]
+
+
+class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
+    like = serializers.IntegerField(source="like_set.count", read_only=True)
     description = serializers.SerializerMethodField()
+    tags = TagListSerializerField()
+    comments = CommentSerializer(many=True, read_only=True)
 
     def get_description(self, obj):
         request = self.context.get("request")
@@ -23,11 +42,14 @@ class NewsSerializer(serializers.ModelSerializer):
         )
 
     class Meta:
-        model = News
+        model = NewsPost
         fields = [
             "id",
             "title",
             "description",
+            "tags",
+            "like",
+            "comments",
             "category",
             "slug",
             "created_at",
@@ -45,13 +67,17 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class NotificationSerializer(serializers.ModelSerializer):
+    actor_username = serializers.CharField(source='actor.username', read_only=True)
+    target_title = serializers.CharField(source='target.title', read_only=True)
+
     class Meta:
-        model = Comment
+        model = Notification
         fields = [
-            "id",
-            "post",
-            "parent",
-            "body",
-            "created_at",
+            'id',
+            'notif_type',
+            'actor_username',
+            'target_title',
+            'created_at',
+            'is_read',
         ]

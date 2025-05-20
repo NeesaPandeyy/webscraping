@@ -1,24 +1,18 @@
 import concurrent.futures
 import datetime
-import os
 import re
 import time
 
 import matplotlib
-import pandas as pd
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 from googletrans import Translator
 from selenium.webdriver.common.by import By
-from textblob import TextBlob
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from scraper.models import (Announcement, StockNewsURL, StockNewsURLRule,
-                            StockRecord, Symbol)
+from scraper.models import StockNewsURL, StockNewsURLRule, StockRecord, Symbol
 
-from .utils import DateConvertor, NewsScraping, SeleniumDriver, TextTranslator
+from ..utils import DateConvertor, NewsScraping, SeleniumDriver, TextTranslator
 
 
 class StockNews:
@@ -183,152 +177,3 @@ class StockNews:
             if driver:
                 driver.quit()
         return content
-
-
-class SentimentAnalysis:
-    @staticmethod
-    def sentiment_score_vader(sentence):
-        analyze = SentimentIntensityAnalyzer()
-        sentiment_dict = analyze.polarity_scores(sentence)
-        return sentiment_dict["compound"]
-
-    @staticmethod
-    def sentiment_score_textblob(text):
-        return TextBlob(text).sentiment.polarity
-
-    @staticmethod
-    def sentiment_label(score, method="vader"):
-        if method == "vader":
-            return (
-                "Positive"
-                if score >= 0.05
-                else "Negative"
-                if score <= -0.05
-                else "Neutral"
-            )
-        else:
-            return "Positive" if score > 0 else "Negative" if score < 0 else "Neutral"
-
-    @staticmethod
-    def apply_sentiment(data):
-        result = data.values(
-            "symbol__name", "symbol__sector__sector", "title", "summary", "date"
-        )
-        df = pd.DataFrame(result)
-        df["sentiment_score_title_vader"] = df["title"].apply(
-            SentimentAnalysis.sentiment_score_vader
-        )
-        df["sentiment_score_summary_vade"] = df["summary"].apply(
-            SentimentAnalysis.sentiment_score_vader
-        )
-
-        df["Title_sentiment_vader"] = df["sentiment_score_title_vader"].apply(
-            lambda x: SentimentAnalysis.sentiment_label(x, method="vader")
-        )
-        df["Summary_sentiment_vader"] = df["sentiment_score_summary_vade"].apply(
-            lambda x: SentimentAnalysis.sentiment_label(x, method="vader")
-        )
-        df["sentiment_score_title_textblob"] = df["title"].apply(
-            SentimentAnalysis.sentiment_score_textblob
-        )
-        df["sentiment_score_summary_textblob"] = df["summary"].apply(
-            SentimentAnalysis.sentiment_score_textblob
-        )
-
-        df["Title_sentiment_textblob"] = df["sentiment_score_title_textblob"].apply(
-            lambda x: SentimentAnalysis.sentiment_label(x, method="textblob")
-        )
-        df["Summary_sentiment_textblob"] = df["sentiment_score_summary_textblob"].apply(
-            lambda x: SentimentAnalysis.sentiment_label(x, method="textblob")
-        )
-        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
-        df["symbol_name"] = df["symbol__name"]
-        df["sector"] = df["symbol__sector__sector"]
-
-        result_df = df[
-            [
-                "symbol_name",
-                "sector",
-                "date",
-                "title",
-                "summary",
-                "Title_sentiment_vader",
-                "Summary_sentiment_vader",
-                "Title_sentiment_textblob",
-                "Summary_sentiment_textblob",
-            ]
-        ]
-        result_json = result_df.to_json(orient="records", force_ascii=False)
-        SentimentAnalysis.plot_chart(result_df)
-        return result_json
-
-    @staticmethod
-    def plot_chart(df):
-        plt.figure(figsize=(12, 6))
-
-        plt.subplot(2, 2, 1)
-        sns.countplot(x=df["Title_sentiment_vader"], color="blue")
-        plt.title("Title sentiment using vader")
-
-        plt.subplot(2, 2, 2)
-        sns.countplot(x=df["Summary_sentiment_vader"], color="green")
-        plt.title("Summary Sentiment using vader")
-
-        plt.subplot(2, 2, 3)
-        sns.countplot(x=df["Title_sentiment_textblob"], color="blue")
-        plt.title("Title sentiment using textblob")
-
-        plt.subplot(2, 2, 4)
-        sns.countplot(x=df["Summary_sentiment_textblob"], color="green")
-        plt.title("Summary Sentiment using textblob")
-
-        plt.tight_layout()
-        output_path = os.path.join("scraper/static/scraper", "plotchart.png")
-        plt.savefig(output_path)
-        plt.close()
-
-
-class AnnouncementScraper:
-    def extract_announcement(self):
-        driver = None
-        try:
-            url = os.getenv("ANNOUNCEMENT_LINK")
-            driver = SeleniumDriver.start_selenium(url)
-            div_list = driver.find_elements(By.CLASS_NAME, "media")
-            for div in div_list:
-                date = div.find_element(By.CLASS_NAME, "text-muted").text
-                date_obj = datetime.datetime.strptime(date, "%b %d, %Y")
-                formatted_date = date_obj.strftime("%Y-%m-%d")
-                link_element = div.find_element(By.TAG_NAME, "a")
-                link_url = link_element.get_attribute("href")
-                announcement = div.find_element(By.CLASS_NAME, "media-body").text
-                if link_url:
-                    driver = SeleniumDriver.start_selenium(link_url)
-                    tags_list = driver.find_element(
-                        By.XPATH,
-                        "//*[@id='aspnetForm']/div[4]/div[5]/div/div/table/tbody/tr[5]/td[2]",
-                    ).text
-                    fields = [
-                        field.strip()
-                        for field in tags_list.split("    ")
-                        if field.strip()
-                    ]
-                    if driver:
-                        driver.quit()
-                try:
-                    if not Announcement.objects.filter(url=link_url).exists():
-                        Announcement.objects.create(
-                            date=formatted_date,
-                            url=link_url,
-                            announcement=announcement,
-                            tags=fields,
-                        )
-                except Exception as e:
-                    print(f"Error saving announcement: {e}")
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return {}
-        finally:
-            if driver:
-                driver.quit()

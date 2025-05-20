@@ -28,6 +28,29 @@ class Keyword(models.Model):
         return self.name
 
 
+class NewsURL(models.Model):
+    url = models.URLField(unique=True)
+
+    def __str__(self):
+        return self.url
+
+
+class NewsURLRule(models.Model):
+    url = models.ForeignKey(
+        NewsURL, on_delete=models.CASCADE, related_name="news_rules"
+    )
+    search = models.CharField(max_length=100, null=True, blank=True)
+    search_bar = models.CharField(max_length=100, null=True, blank=True)
+    main_div = models.CharField(max_length=100, null=True, blank=True)
+    div_list = models.CharField(max_length=100, null=True, blank=True)
+    link_text = models.CharField(max_length=100, null=True, blank=True)
+    headline = models.CharField(max_length=50, null=True, blank=True)
+    summary = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.url)
+
+
 class StockNewsURL(models.Model):
     url = models.URLField(unique=True)
 

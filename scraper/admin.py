@@ -7,12 +7,12 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
 
-from .models import (Announcement, Keyword, Sector, StockNewsURL,
-                     StockNewsURLRule, StockRecord, Symbol)
+from .models import (Announcement, Keyword, NewsURL, NewsURLRule, Sector,
+                     StockNewsURL, StockNewsURLRule, StockRecord, Symbol)
 
 load_dotenv()
 
-admin.site.site_header = "Web Scraping"
+admin.site.site_header = "News Portal"
 
 
 class StockKeywordAutoCompleteFilter(AutocompleteFilter):
@@ -114,6 +114,12 @@ class StockNewsURLRuleAdmin(admin.ModelAdmin):
     search_fields = ("url",)
 
 
+@admin.register(NewsURLRule)
+class NewsURLRuleAdmin(admin.ModelAdmin):
+    list_display = ["url"]
+    search_fields = ("url",)
+
+
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
     list_display = ("date", "url", "announcement", "tags")
@@ -123,3 +129,4 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
 
 admin.site.register(StockNewsURL)
+admin.site.register(NewsURL)

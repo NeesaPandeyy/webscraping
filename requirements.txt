@@ -3,6 +3,7 @@ django_admin_autocomplete_filter==0.7.1
 django_ckeditor_5==0.2.17
 django_elasticsearch_dsl==8.0
 django_mptt==0.17.0
+django_taggit==6.1.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 drf_yasg==1.21.10
@@ -16,6 +17,7 @@ Requests==2.32.3
 seaborn==0.13.2
 selenium==4.32.0
 textblob==0.19.0
+unfold==1.2.3
 vaderSentiment==3.3.2
 vaderSentiment==3.3.2
 webdriver_manager==4.0.2

@@ -12,7 +12,7 @@ from core.pagination import CustomPagination
 from scraper.api.filters import AnnouncementFilter, StockRecordFilter
 from scraper.documents import StockRecordDocument
 from scraper.models import Announcement, StockRecord, Symbol
-from scraper.services import SentimentAnalysis
+from scraper.services.sentiment import SentimentAnalysis
 
 from .serializers import (AnnouncementSerializer, SentimentSerializer,
                           StockRecordSerializer, SymbolSerializer)

@@ -13,7 +13,8 @@ class CustomFilter(filters.CharFilter):
 
         query = Q()
         for val in values:
-            query |= Q(tags__icontains=val)
+            lookup = f"{self.field_name}__icontains"
+            query |= Q(**{lookup: val})
         return queryset.filter(query)
 
 
@@ -48,11 +49,11 @@ class StockRecordFilter(filters.FilterSet):
         label="To Date",
         widget=forms.DateInput(attrs={"type": "date"}),
     )
-    # title = CustomFilter(
-    #     field_name="title",
-    #     lookup_expr="icontains",
-    #     label="title",
-    # )
+    title = CustomFilter(
+        field_name="title",
+        lookup_expr="icontains",
+        label="title",
+    )
     keyword = filters.ModelChoiceFilter(
         queryset=Keyword.objects.all(),
         method="filter_with_keyword",

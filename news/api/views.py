@@ -6,13 +6,15 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+
 
 from core.pagination import CustomPagination
 from news.api.filters import NewsFilter
-from news.models import Category, Comment, NewsPost, Notification
+from news.models import Category, Comment, NewsPost,Like
 
 from .serializers import (CategorySerializer, CommentSerializer,
-                          NewsSerializer, NotificationSerializer)
+                          NewsSerializer,LikeSerializer)
 
 
 class NewsAPIRootView(APIView):
@@ -23,10 +25,8 @@ class NewsAPIRootView(APIView):
             {
                 "category": reverse("category-api", request=request, format=format),
                 "newslist": reverse("newslist-api", request=request, format=format),
+                "like": reverse("like-api", request=request, format=format),
                 "comment": reverse("comment-api", request=request, format=format),
-                "notification": reverse(
-                    "notification-api", request=request, format=format
-                ),
             }
         )
 
@@ -53,13 +53,9 @@ class CommentView(generics.ListAPIView):
     serializer_class = CommentSerializer
     pagination_class = CustomPagination
 
+class LikeView(generics.ListAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    pagination_class = CustomPagination
 
-class NotificationListView(generics.ListAPIView):
-    serializer_class = NotificationSerializer
-    queryset = Notification.objects.all()
-    # permission_classes = [IsAuthenticated]
 
-    # def get_queryset(self):
-    #     return Notification.objects.filter(recipient=self.request.user).order_by(
-    #         "-created_at"
-    #     )

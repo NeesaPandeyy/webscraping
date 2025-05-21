@@ -2,9 +2,9 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from news.utils import create_notification
+from notifications.utils import create_notification
 
-from .models import Comment, Like, NewsPost
+from news.models import Comment, Like, NewsPost
 
 
 @receiver(post_save, sender=Like)

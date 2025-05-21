@@ -70,11 +70,29 @@ class NewsPost(TimestampAbstractModel, models.Model):
         verbose_name = "Post News"
         verbose_name_plural = "Post News"
 
+class LikeManager(models.Manager):
+    def toggle_like(self, user, post):
+        try:
+            like = self.get(user=user, post=post)
+            like.delete()
+            return False
+        except Like.DoesNotExist:
+            self.create(user=user, post=post)
+            return True
+  
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(NewsPost, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = LikeManager()
+
+    class Meta:
+        unique_together = ("user", "post") 
+       
+    def __str__(self):
+        return f"{self.user} liked {self.post}"
 
 
 class Comment(TimestampAbstractModel, MPTTModel):
@@ -94,17 +112,3 @@ class Comment(TimestampAbstractModel, MPTTModel):
         return self.body[:10]
 
 
-class Notification(models.Model):
-
-    recipient = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="notifications"
-    )
-    actor = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="sent_notifications"
-    )
-    verb = models.CharField(max_length=255)  
-    target = models.ForeignKey(
-        NewsPost, on_delete=models.CASCADE, null=True, blank=True
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)

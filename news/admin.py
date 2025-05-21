@@ -1,21 +1,33 @@
 from django.contrib import admin
 from django.db import models
-from mptt.admin import MPTTModelAdmin
 
-from .models import Category, Comment, Like, NewsPost, NewsStatus, Notification
+from .models import Category, Comment, Like, NewsPost, NewsStatus
+from unfold.admin import ModelAdmin
+from mptt.admin import DraggableMPTTAdmin
 
 
 @admin.register(Category)
-class CategoryAdmin(MPTTModelAdmin):
-    list_display = ("name", "parent")
-    list_filter = ("name", "parent")
-    search_fields = ("name",)
-    autocomplete_fields = ("parent",)
+class CategoryAdmin(DraggableMPTTAdmin,ModelAdmin):
     mptt_level_indent = 20
 
+    list_display = (
+        "tree_actions",      
+        "indented_title",   
+        "name",
+        "parent",
+    )
+    list_display_links = ("indented_title",) 
+
+    list_filter = ("parent",)
+    search_fields = ("name",)
+    autocomplete_fields = ("parent",)
+
+    def indented_title(self, obj):
+        return obj.name
+    indented_title.short_description = "Category"
 
 @admin.register(NewsPost)
-class NewsPostAdmin(admin.ModelAdmin):
+class NewsPostAdmin(ModelAdmin):
     list_display = (
         "title",
         "category",
@@ -80,24 +92,25 @@ class LikeAdmin(admin.ModelAdmin):
 
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ("user", "post", "body", "parent", "created_at")
-    search_fields = ("user__username", "post__title", "body")
-    list_filter = ("created_at",)
-    autocomplete_fields = ("user", "post", "parent")
+class CommentAdmin(DraggableMPTTAdmin, ModelAdmin):  
+    mptt_level_indent = 20
 
-
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        "recipient",
-        "actor",
-        "verb",
-        "target",
-        "is_read",
+        "tree_actions",   
+        "indented_title", 
+        "user",
+        "post",
+        "parent",
         "created_at",
     )
-    list_filter = ("verb", "is_read", "created_at")
-    search_fields = ("recipient__username", "actor__username", "target__title")
-    autocomplete_fields = ("recipient", "actor", "target")
-    ordering = ("-created_at",)
+    list_display_links = ("indented_title",)
+
+    list_filter = ("post", "user")
+    search_fields = ("body", "user__username")
+
+    field_layout = (
+        ("Comment Info", {
+            "fields": ("user", "post", "body", "parent"),
+        }),
+    )
+

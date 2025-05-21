@@ -45,6 +45,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.api.urls")),
     path("stock/", include("scraper.api.urls")),
+    path("notification/", include("notifications.api.urls")),
     path("news/", include("news.api.urls")),
     path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("api-token-auth/", obtain_auth_token),

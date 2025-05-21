@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Category, Comment, NewsPost, Notification
+from news.models import Category, Comment, NewsPost,Like
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -21,9 +21,19 @@ class CommentSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+class LikeSerializer(serializers.ModelSerializer):
+    user = serializers.CharField()
+
+    class Meta:
+        model = Like
+        fields = [
+            "id",
+            "user",
+            "post",
+        ]
+        
 
 class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
-    like = serializers.IntegerField(source="like_set.count", read_only=True)
     description = serializers.SerializerMethodField()
     tags = TagListSerializerField()
     comments = CommentSerializer(many=True, read_only=True)
@@ -48,7 +58,6 @@ class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
             "title",
             "description",
             "tags",
-            "like",
             "comments",
             "category",
             "slug",
@@ -67,17 +76,3 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
 
 
-class NotificationSerializer(serializers.ModelSerializer):
-    actor_username = serializers.CharField(source='actor.username', read_only=True)
-    target_title = serializers.CharField(source='target.title', read_only=True)
-
-    class Meta:
-        model = Notification
-        fields = [
-            'id',
-            'notif_type',
-            'actor_username',
-            'target_title',
-            'created_at',
-            'is_read',
-        ]

@@ -39,7 +39,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    # "unfold",
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "accounts",
     "taggit",
     "news",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -387,7 +388,6 @@ def permission_callback(request):
 UNFOLD = {
     "SITE_TITLE": "News Portal",
     "SITE_HEADER": "News Portal",
-    "SITE_SUBHEADER": "Appears under SITE_HEADER",
     "SITE_DROPDOWN": [
         {
             "icon": "diamond",
@@ -397,14 +397,14 @@ UNFOLD = {
     ],
     "SITE_URL": "/",
     "SITE_ICON": {
-        "light": lambda request: static("icon-light.svg"),
-        "dark": lambda request: static("icon-dark.svg"),
+        "light": lambda request: static("news.jpg"),
+        "dark": lambda request: static("news.jpg"),
     },
     "SITE_LOGO": {
-        "light": lambda request: static("logo-light.svg"),
-        "dark": lambda request: static("logo-dark.svg"),
+        "light": lambda request: static("news.jpg"),
+        "dark": lambda request: static("news.jpg"),
     },
-    "SITE_SYMBOL": "speed",
+    "SITE_SYMBOL": "home",
     "SITE_FAVICONS": [
         {
             "rel": "icon",
@@ -422,7 +422,7 @@ UNFOLD = {
     "THEME": "dark",
     "LOGIN": {
         "image": lambda request: static("sample/login-bg.jpg"),
-        "redirect_after": lambda request: reverse_lazy("admin:APP_MODEL_changelist"),
+        "redirect_after": lambda request: reverse_lazy("admin:index"),
     },
     "STYLES": [
         lambda request: static("css/style.css"),
@@ -526,9 +526,20 @@ UNFOLD = {
                         "link": reverse_lazy("admin:news_newspost_changelist"),
                     },
                     {
+                        "title": _("Likes"),
+                        "icon": "favorite",
+                        "link": reverse_lazy("admin:news_like_changelist"),
+                    },
+                    {
                         "title": _("Comments"),
-                        "icon": "comment",
+                        "icon": "message", 
                         "link": reverse_lazy("admin:news_comment_changelist"),
+                    },
+                    {
+                        "title": _("Notifications"),
+                        "icon": "notifications", 
+                        "link": reverse_lazy("admin:notifications_notification_changelist"),
+
                     },
                 ],
             },

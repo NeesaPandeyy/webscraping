@@ -1,12 +1,13 @@
 from django.urls import path
 
 from .views import (CategoryView, CommentView, NewsAPIRootView,
-                    NotificationListView, PublishedNewsView)
+                    PublishedNewsView,LikeView)
 
 urlpatterns = [
     path("", NewsAPIRootView.as_view(), name="api-news"),
     path("newslist/", PublishedNewsView.as_view(), name="newslist-api"),
     path("category/", CategoryView.as_view(), name="category-api"),
+    path("like/", LikeView.as_view(), name="like-api"),
     path("comment/", CommentView.as_view(), name="comment-api"),
-    path("notification/", NotificationListView.as_view(), name="notification-api"),
+
 ]

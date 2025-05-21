@@ -1,0 +1,22 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+<form method="post" action="">
+    {% csrf_token %}
+    {% block result_list %}
+    {{ result_list }}
+    {% endblock %}
+
+    {% if cl.formset %}
+    {{ cl.formset.management_form }}
+    {% endif %}
+
+    {% if cl.result_list %}
+    <div class="actions">
+        <label>{{ action_form.action.label_tag }}</label>
+        {{ action_form.action }}
+        <button type="submit" class="btn btn-primary" name="index" value="0">Run</button>
+    </div>
+    {% endif %}
+</form>
+{% endblock %}

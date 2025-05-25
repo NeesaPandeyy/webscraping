@@ -1,20 +1,16 @@
-from django.http import JsonResponse
-from django.views import View
 from django_filters import rest_framework as filters
 from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-
 
 from core.pagination import CustomPagination
 from news.api.filters import NewsFilter
-from news.models import Category, Comment, NewsPost,Like
+from news.models import Category, Comment, Like, NewsPost
 
 from .serializers import (CategorySerializer, CommentSerializer,
-                          NewsSerializer,LikeSerializer)
+                          LikeSerializer, NewsSerializer)
 
 
 class NewsAPIRootView(APIView):
@@ -43,6 +39,18 @@ class PublishedNewsView(generics.ListAPIView):
         return NewsPost.objects.filter(status__in=["published"])
 
 
+class PublishedNewsRetrieveView(generics.RetrieveAPIView):
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = NewsFilter
+    pagination_class = CustomPagination
+
+    # permission_classes = [IsAdminUser]
+    serializer_class = NewsSerializer
+
+    def get_queryset(self):
+        return NewsPost.objects.filter(status__in=["published"])
+
+
 class CategoryView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -53,9 +61,8 @@ class CommentView(generics.ListAPIView):
     serializer_class = CommentSerializer
     pagination_class = CustomPagination
 
+
 class LikeView(generics.ListAPIView):
-    queryset = Like.objects.all()
+    queryset = Like.objects.filter(is_liked=True)
     serializer_class = LikeSerializer
     pagination_class = CustomPagination
-
-

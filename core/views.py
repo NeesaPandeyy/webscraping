@@ -13,6 +13,8 @@ class APIRootView(APIView):
                 "accounts": reverse("api-accounts", request=request, format=format),
                 "scraper": reverse("api-scraper", request=request, format=format),
                 "news": reverse("api-news", request=request, format=format),
-                "notification": reverse("api-notification", request=request, format=format),
+                "notification": reverse(
+                    "api-notification", request=request, format=format
+                ),
             }
         )

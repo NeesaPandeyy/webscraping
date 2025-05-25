@@ -1,10 +1,28 @@
-from django.contrib.auth.models import User
+import re
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from notifications.utils import create_notification
+from django.utils.html import strip_tags
 
 from news.models import Comment, Like, NewsPost
+from notifications.utils import create_notification
+
+User = get_user_model()
+
+
+@receiver(post_save, sender=User, dispatch_uid="send_welcome_email")
+def send_welcome_email(sender, instance, created, **kwargs):
+    if created:
+        send_mail(
+            "Welcome!",
+            "Thank you for signing up",
+            "neesapandey56@gmail.com",
+            [instance.email],
+            fail_silently=False,
+        )
 
 
 @receiver(post_save, sender=Like)
@@ -48,3 +66,32 @@ def notify_post(sender, instance, created, **kwargs):
                 verb="posted a new post",
                 target=instance,
             )
+
+
+@receiver(post_save, sender=NewsPost)
+def notify_newpost_mail(sender, instance, created, **kwargs):
+    if created and instance.status == "published":
+        users = User.objects.exclude(id=instance.creator.id)
+        subject = f"New Post:{instance.title}"
+        message = f"""
+                Title:{instance.title}  \n
+                {instance.description}
+                        """
+
+        image_url_match = re.search(r'<img.*?src="(.*?)".*?>', instance.description)
+        image_url = image_url_match.group(1) if image_url_match else None
+
+        if image_url:
+            message += f'<br><img src="{image_url}" style="max-width:100%;">'
+        plain_message = strip_tags(message)
+
+        for user in users:
+            msg = EmailMultiAlternatives(
+                subject,
+                plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email],
+            )
+
+            msg.attach_alternative(message, "text/html")
+            msg.send(fail_silently=False)

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
@@ -44,14 +44,17 @@ class NewsPost(TimestampAbstractModel, models.Model):
         related_name="news_category",
     )
     tags = TaggableManager(blank=True)
-    slug = models.SlugField(blank=True, max_length=100)
+    slug = models.SlugField(blank=True, max_length=500)
     status = models.CharField(
         max_length=20,
         choices=NewsStatus.choices,
         default=NewsStatus.DRAFT,
     )
     creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, editable=False, related_name="created_by"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        editable=False,
+        related_name="created_by",
     )
 
     def save(self, *args, **kwargs):
@@ -66,37 +69,46 @@ class NewsPost(TimestampAbstractModel, models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def likes_count(self):
+        return self.like_set.filter(is_liked=True).count()
+
     class Meta:
         verbose_name = "Post News"
         verbose_name_plural = "Post News"
 
+
 class LikeManager(models.Manager):
     def toggle_like(self, user, post):
-        try:
-            like = self.get(user=user, post=post)
-            like.delete()
-            return False
-        except Like.DoesNotExist:
-            self.create(user=user, post=post)
-            return True
-  
+        like, created = self.get_or_create(user=user, post=post)
+
+        if not created:
+            like.is_liked = not like.is_liked
+            like.save()
+        else:
+            like.is_liked = True
+            like.save()
+
+        return like.is_liked
+
 
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(NewsPost, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_liked = models.BooleanField(default=True)
 
     objects = LikeManager()
 
     class Meta:
-        unique_together = ("user", "post") 
-       
+        unique_together = ("user", "post")
+
     def __str__(self):
         return f"{self.user} liked {self.post}"
 
 
 class Comment(TimestampAbstractModel, MPTTModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(
         NewsPost, on_delete=models.CASCADE, related_name="comments"
     )
@@ -110,5 +122,3 @@ class Comment(TimestampAbstractModel, MPTTModel):
 
     def __str__(self):
         return self.body[:10]
-
-

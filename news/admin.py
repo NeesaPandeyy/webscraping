@@ -1,22 +1,22 @@
 from django.contrib import admin
 from django.db import models
+from mptt.admin import DraggableMPTTAdmin
+from unfold.admin import ModelAdmin
 
 from .models import Category, Comment, Like, NewsPost, NewsStatus
-from unfold.admin import ModelAdmin
-from mptt.admin import DraggableMPTTAdmin
 
 
 @admin.register(Category)
-class CategoryAdmin(DraggableMPTTAdmin,ModelAdmin):
+class CategoryAdmin(DraggableMPTTAdmin, ModelAdmin):
     mptt_level_indent = 20
 
     list_display = (
-        "tree_actions",      
-        "indented_title",   
+        "tree_actions",
+        "indented_title",
         "name",
         "parent",
     )
-    list_display_links = ("indented_title",) 
+    list_display_links = ("indented_title",)
 
     list_filter = ("parent",)
     search_fields = ("name",)
@@ -24,7 +24,9 @@ class CategoryAdmin(DraggableMPTTAdmin,ModelAdmin):
 
     def indented_title(self, obj):
         return obj.name
+
     indented_title.short_description = "Category"
+
 
 @admin.register(NewsPost)
 class NewsPostAdmin(ModelAdmin):
@@ -34,7 +36,7 @@ class NewsPostAdmin(ModelAdmin):
         "status",
         "get_tags",
         "creator",
-        "like_count",
+        "likes_count",
         "created_at",
         "updated_at",
     )
@@ -43,11 +45,6 @@ class NewsPostAdmin(ModelAdmin):
     autocomplete_fields = ("category",)
     readonly_fields = ("created_at", "updated_at")
     actions = ["approve_news", "reject_news"]
-
-    def like_count(self, obj):
-        return obj.like_set.count()
-
-    like_count.short_description = "Likes"
 
     def get_tags(self, obj):
         return ", ".join(tag.name for tag in obj.tags.all())
@@ -85,19 +82,19 @@ class NewsPostAdmin(ModelAdmin):
 
 
 @admin.register(Like)
-class LikeAdmin(admin.ModelAdmin):
-    list_display = ("user", "post", "created_at")
-    search_fields = ("user__username", "post__title")
+class LikeAdmin(ModelAdmin):
+    list_display = ("user", "post", "is_liked", "created_at")
+    search_fields = ("user__username", "is_liked", "post__title")
     autocomplete_fields = ("user", "post")
 
 
 @admin.register(Comment)
-class CommentAdmin(DraggableMPTTAdmin, ModelAdmin):  
+class CommentAdmin(DraggableMPTTAdmin, ModelAdmin):
     mptt_level_indent = 20
 
     list_display = (
-        "tree_actions",   
-        "indented_title", 
+        "tree_actions",
+        "indented_title",
         "user",
         "post",
         "parent",
@@ -109,8 +106,10 @@ class CommentAdmin(DraggableMPTTAdmin, ModelAdmin):
     search_fields = ("body", "user__username")
 
     field_layout = (
-        ("Comment Info", {
-            "fields": ("user", "post", "body", "parent"),
-        }),
+        (
+            "Comment Info",
+            {
+                "fields": ("user", "post", "body", "parent"),
+            },
+        ),
     )
-

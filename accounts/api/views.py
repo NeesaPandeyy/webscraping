@@ -1,13 +1,13 @@
-from django.contrib.auth.models import User
-from rest_framework import generics, status
-from rest_framework.authtoken.models import Token
+from rest_framework import generics, permissions, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import (LoginSerializer, RegisterSerializer,
-                          UserListSerializer)
+from accounts.models import CustomUser
+
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 
 
 class AccountsAPIRootView(APIView):
@@ -16,39 +16,51 @@ class AccountsAPIRootView(APIView):
     def get(self, request, format=None):
         return Response(
             {
-                "user-list": reverse("user-list", request=request, format=format),
-                "register": reverse("register", request=request, format=format),
-                "login": reverse("login", request=request, format=format),
+                "users": reverse("users-api", request=request, format=format),
+                "register": reverse("register-api", request=request, format=format),
+                "login": reverse("login-api", request=request, format=format),
+                "profile": reverse("profile-api", request=request, format=format),
             }
         )
 
 
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserListSerializer
-    # permission_classes = [IsAdminUser]
+def get_tokens(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
 
 
-class RegisterView(generics.GenericAPIView):
+class UserView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    # permission_classes = [IsAuthenticated]
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
-
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response(
-            {"user": serializer.data, "token": token.key},
-            status=status.HTTP_201_CREATED,
-        )
 
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_200_OK)
+
+        tokens = get_tokens(user)
+        return Response(
+            {"token": tokens, "user": UserSerializer(user).data},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user

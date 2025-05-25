@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "unfold",
+    "accounts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -62,10 +63,10 @@ INSTALLED_APPS = [
     "django_ckeditor_5",
     "django.forms",
     "mptt",
-    "accounts",
     "taggit",
     "news",
     "notifications",
+    "celery_admin",
 ]
 
 MIDDLEWARE = [
@@ -182,12 +183,12 @@ CELERY_RESULT_EXTENDED = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
-REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+#     "DEFAULT_AUTHENTICATION_CLASSES": (
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#     ),
+# }
 
 # JWT settings
 
@@ -209,6 +210,18 @@ SWAGGER_SETTINGS = {
         },
     },
 }
+
+AUTH_USER_MODEL = "accounts.CustomUser"
+
+# gmail
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
 
 # elastic-search
 ELASTICSEARCH_DSL = {"default": {"hosts": "http://localhost:9200"}}
@@ -500,7 +513,7 @@ UNFOLD = {
                     {
                         "title": _("Users"),
                         "icon": "people",
-                        "link": reverse_lazy("admin:auth_user_changelist"),
+                        "link": reverse_lazy("admin:accounts_customuser_changelist"),
                     },
                     {
                         "title": _("Groups"),
@@ -532,14 +545,22 @@ UNFOLD = {
                     },
                     {
                         "title": _("Comments"),
-                        "icon": "message", 
+                        "icon": "message",
                         "link": reverse_lazy("admin:news_comment_changelist"),
                     },
                     {
                         "title": _("Notifications"),
-                        "icon": "notifications", 
-                        "link": reverse_lazy("admin:notifications_notification_changelist"),
-
+                        "icon": "notifications",
+                        "link": reverse_lazy(
+                            "admin:notifications_notification_changelist"
+                        ),
+                    },
+                    {
+                        "title": _("Email Notifications"),
+                        "icon": "email",
+                        "link": reverse_lazy(
+                            "admin:notifications_emailnotification_changelist"
+                        ),
                     },
                 ],
             },
@@ -630,6 +651,13 @@ UNFOLD = {
                         "icon": "alarm",
                         "link": reverse_lazy(
                             "admin:django_celery_beat_clockedschedule_changelist"
+                        ),
+                    },
+                    {
+                        "title": _("Solar Schedules"),
+                        "icon": "sunny",
+                        "link": reverse_lazy(
+                            "admin:django_celery_beat_solarschedule_changelist"
                         ),
                     },
                 ],

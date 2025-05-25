@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Category, Comment, NewsPost,Like
+from news.models import Category, Comment, Like, NewsPost
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -21,6 +21,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.CharField()
 
@@ -31,12 +32,12 @@ class LikeSerializer(serializers.ModelSerializer):
             "user",
             "post",
         ]
-        
+
 
 class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
     description = serializers.SerializerMethodField()
     tags = TagListSerializerField()
-    comments = CommentSerializer(many=True, read_only=True)
+    # comments = CommentSerializer(many=True, read_only=True)
 
     def get_description(self, obj):
         request = self.context.get("request")
@@ -58,7 +59,8 @@ class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
             "title",
             "description",
             "tags",
-            "comments",
+            "likes_count",
+            # "comments",
             "category",
             "slug",
             "created_at",
@@ -74,5 +76,3 @@ class CategorySerializer(serializers.ModelSerializer):
             "name",
             "parent",
         ]
-
-

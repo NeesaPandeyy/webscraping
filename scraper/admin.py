@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import path
 from dotenv import load_dotenv
+from unfold.admin import ModelAdmin
 
 from .models import (Announcement, Keyword, NewsURL, NewsURLRule, Sector,
                      StockNewsURL, StockNewsURLRule, StockRecord, Symbol)
@@ -21,7 +22,7 @@ class StockKeywordAutoCompleteFilter(AutocompleteFilter):
 
 
 @admin.register(Sector)
-class SectorAdmin(admin.ModelAdmin):
+class SectorAdmin(ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
     list_filter = ("name",)
@@ -31,7 +32,7 @@ class SectorAdmin(admin.ModelAdmin):
 
 
 @admin.register(Keyword)
-class KeywordAdmin(admin.ModelAdmin):
+class KeywordAdmin(ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
     list_filter = ("name",)
@@ -41,7 +42,7 @@ class KeywordAdmin(admin.ModelAdmin):
 
 
 @admin.register(Symbol)
-class SymbolAdmin(admin.ModelAdmin):
+class SymbolAdmin(ModelAdmin):
     list_display = ["name"]
     search_fields = ("name",)
     list_filter = ("name",)
@@ -95,7 +96,7 @@ class SymbolAdmin(admin.ModelAdmin):
 
 
 @admin.register(StockRecord)
-class StockRecordAdmin(admin.ModelAdmin):
+class StockRecordAdmin(ModelAdmin):
     list_per_page = 10
     list_display = ("get_symbols", "title", "url", "summary", "date")
     list_filter = ("symbol", "date", "keywords")
@@ -109,19 +110,19 @@ class StockRecordAdmin(admin.ModelAdmin):
 
 
 @admin.register(StockNewsURLRule)
-class StockNewsURLRuleAdmin(admin.ModelAdmin):
+class StockNewsURLRuleAdmin(ModelAdmin):
     list_display = ["url"]
     search_fields = ("url",)
 
 
 @admin.register(NewsURLRule)
-class NewsURLRuleAdmin(admin.ModelAdmin):
+class NewsURLRuleAdmin(ModelAdmin):
     list_display = ["url"]
     search_fields = ("url",)
 
 
 @admin.register(Announcement)
-class AnnouncementAdmin(admin.ModelAdmin):
+class AnnouncementAdmin(ModelAdmin):
     list_display = ("date", "url", "announcement", "tags")
     search_fields = ("announcement", "tags")
     list_filter = ("date", "tags")

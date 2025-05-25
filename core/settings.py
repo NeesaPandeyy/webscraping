@@ -503,6 +503,12 @@ UNFOLD = {
                         "link": reverse_lazy("admin:index"),
                         "permission": lambda request: request.user.is_superuser,
                     },
+                    {
+                        "title": _("Support"),
+                        "icon": "support",
+                        "link": reverse_lazy("admin:accounts_support_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
                 ],
             },
             {
@@ -553,13 +559,6 @@ UNFOLD = {
                         "icon": "notifications",
                         "link": reverse_lazy(
                             "admin:notifications_notification_changelist"
-                        ),
-                    },
-                    {
-                        "title": _("Email Notifications"),
-                        "icon": "email",
-                        "link": reverse_lazy(
-                            "admin:notifications_emailnotification_changelist"
                         ),
                     },
                 ],

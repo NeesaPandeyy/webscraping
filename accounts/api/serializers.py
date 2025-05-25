@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from accounts.models import CustomUser
+from accounts.models import CustomUser, Support
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,3 +51,10 @@ class LoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid data")
         return user
+
+
+class SupportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Support
+        fields = ["id", "user", "subject", "message", "created_at"]
+        read_only_fields = ["user", "created_at"]

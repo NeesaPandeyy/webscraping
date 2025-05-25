@@ -73,16 +73,19 @@ def notify_newpost_mail(sender, instance, created, **kwargs):
     if created and instance.status == "published":
         users = User.objects.exclude(id=instance.creator.id)
         subject = f"New Post:{instance.title}"
+
+        def resize_images(html):
+            return re.sub(
+                r"<img([^>]+)>", r'<img\1 style="max-width:500px; height:auto;">', html
+            )
+
+        resized_description = resize_images(instance.description)
+
         message = f"""
-                Title:{instance.title}  \n
-                {instance.description}
+                <b>{instance.title} </b> \n
+                {resized_description}
                         """
 
-        image_url_match = re.search(r'<img.*?src="(.*?)".*?>', instance.description)
-        image_url = image_url_match.group(1) if image_url_match else None
-
-        if image_url:
-            message += f'<br><img src="{image_url}" style="max-width:100%;">'
         plain_message = strip_tags(message)
 
         for user in users:

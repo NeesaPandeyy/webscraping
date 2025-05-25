@@ -5,9 +5,10 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import CustomUser
+from accounts.models import CustomUser, Support
 
-from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
+from .serializers import (LoginSerializer, RegisterSerializer,
+                          SupportSerializer, UserSerializer)
 
 
 class AccountsAPIRootView(APIView):
@@ -19,6 +20,7 @@ class AccountsAPIRootView(APIView):
                 "users": reverse("users-api", request=request, format=format),
                 "register": reverse("register-api", request=request, format=format),
                 "login": reverse("login-api", request=request, format=format),
+                "support": reverse("support-api", request=request, format=format),
                 "profile": reverse("profile-api", request=request, format=format),
             }
         )
@@ -64,3 +66,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class CreateSupportView(generics.CreateAPIView):
+    queryset = Support.objects.all()
+    serializer_class = SupportSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

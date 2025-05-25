@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from unfold.admin import ModelAdmin
 
-from .models import CustomUser
+from .models import CustomUser, Support
 
 
 @admin.register(CustomUser)
@@ -40,3 +40,10 @@ class CustomUserAdmin(UserAdmin, ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(Support)
+class SupportTicketAdmin(ModelAdmin):
+    list_display = ("subject", "user", "created_at")
+    search_fields = ("subject", "message", "user__username")
+    list_filter = ("created_at",)

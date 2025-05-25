@@ -3,7 +3,7 @@ from django.db import models
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin
 
-from .models import Category, Comment, Like, NewsPost, NewsStatus
+from .models import Category, Comment, Like, NewsPost
 
 
 @admin.register(Category)
@@ -56,7 +56,7 @@ class NewsPostAdmin(ModelAdmin):
         user = request.user
         if user.is_superuser:
             return qs
-        return qs.filter(models.Q(status=NewsStatus.PUBLISHED) | models.Q(creator=user))
+        return qs.filter(models.Q(status=self.PUBLISHED) | models.Q(creator=user))
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:
@@ -64,13 +64,13 @@ class NewsPostAdmin(ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def approve_news(self, request, queryset):
-        updated = queryset.update(status=NewsStatus.PUBLISHED)
+        updated = queryset.update(status=self.PUBLISHED)
         self.message_user(request, "Your post has been approved and published")
 
     approve_news.short_description = "Approve selected news"
 
     def reject_news(self, request, queryset):
-        updated = queryset.update(status=NewsStatus.REJECTED)
+        updated = queryset.update(status=self.REJECTED)
         self.message_user(request, "Your post has been rejected")
 
     reject_news.short_description = "Reject selected news"
@@ -83,8 +83,8 @@ class NewsPostAdmin(ModelAdmin):
 
 @admin.register(Like)
 class LikeAdmin(ModelAdmin):
-    list_display = ("user", "post", "is_liked", "created_at")
-    search_fields = ("user__username", "is_liked", "post__title")
+    list_display = ("user", "post", "created_at")
+    search_fields = ("user__username", "post__title")
     autocomplete_fields = ("user", "post")
 
 

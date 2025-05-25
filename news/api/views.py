@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
@@ -9,8 +10,7 @@ from core.pagination import CustomPagination
 from news.api.filters import NewsFilter
 from news.models import Category, Comment, Like, NewsPost
 
-from .serializers import (CategorySerializer, CommentSerializer,
-                          LikeSerializer, NewsSerializer)
+from .serializers import CategorySerializer, CommentSerializer, NewsSerializer
 
 
 class NewsAPIRootView(APIView):
@@ -62,7 +62,18 @@ class CommentView(generics.ListAPIView):
     pagination_class = CustomPagination
 
 
-class LikeView(generics.ListAPIView):
-    queryset = Like.objects.filter(is_liked=True)
-    serializer_class = LikeSerializer
-    pagination_class = CustomPagination
+# class LikeView(generics.ListAPIView):
+#     # permission_classes = [IsAuthenticated]
+
+#     queryset = Like.objects.filter(is_liked=True)
+#     serializer_class = LikeSerializer
+#     pagination_class = CustomPagination
+
+
+class LikeView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def post(self, request, post_id):
+        post = get_object_or_404(NewsPost, id=post_id)
+        liked = Like.objects.toggle_like(request.user, post)
+        return Response({"liked": liked})

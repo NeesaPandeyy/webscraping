@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from accounts.models import CustomUser, Support
+from users.models import CustomUser, Support
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "bio", "profile_picture"]
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegistersSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, style={"input_type": "password"})
     password2 = serializers.CharField(write_only=True, style={"input_type": "password"})
 
@@ -42,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginsSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True, style={"input_type": "password"})
 

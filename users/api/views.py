@@ -5,9 +5,9 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import CustomUser, Support
+from users.models import CustomUser, Support
 
-from .serializers import (LoginSerializer, RegisterSerializer,
+from .serializers import (LoginsSerializer, RegistersSerializer,
                           SupportSerializer, UserSerializer)
 
 
@@ -42,11 +42,11 @@ class UserView(generics.ListAPIView):
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = RegisterSerializer
+    serializer_class = RegistersSerializer
 
 
 class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+    serializer_class = LoginsSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

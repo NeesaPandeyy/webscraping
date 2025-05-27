@@ -35,12 +35,12 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS = ["192.168.1.102", "localhost", "127.0.0.1"]
 
-
+SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
     "unfold",
-    "accounts",
+    "users",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -67,8 +67,16 @@ INSTALLED_APPS = [
     "news",
     "notifications",
     "celery_admin",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {"SCOPE": ["profile", "email"], "AUTH_PARAMS": {"access_type": "online"}}
+}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -78,7 +86,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+LOGIN_DIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -92,7 +108,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -211,7 +227,7 @@ SWAGGER_SETTINGS = {
     },
 }
 
-AUTH_USER_MODEL = "accounts.CustomUser"
+AUTH_USER_MODEL = "users.CustomUser"
 
 # gmail
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
@@ -506,7 +522,7 @@ UNFOLD = {
                     {
                         "title": _("Support"),
                         "icon": "support",
-                        "link": reverse_lazy("admin:accounts_support_changelist"),
+                        "link": reverse_lazy("admin:users_support_changelist"),
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
@@ -519,7 +535,7 @@ UNFOLD = {
                     {
                         "title": _("Users"),
                         "icon": "people",
-                        "link": reverse_lazy("admin:accounts_customuser_changelist"),
+                        "link": reverse_lazy("admin:users_customuser_changelist"),
                     },
                     {
                         "title": _("Groups"),
@@ -528,6 +544,46 @@ UNFOLD = {
                     },
                 ],
             },
+            # {
+            #     "title": _("OAuth"),
+            #     "separator": True,
+            #     "collapsible": True,
+            #     "items": [
+            #         {
+            #             "title": _("Access Token"),
+            #             "icon": "vpn_key",
+            #             "link": reverse_lazy(
+            #                 "admin:oauth2_provider_accesstoken_changelist"
+            #             ),
+            #         },
+            #         {
+            #             "title": _("Application"),
+            #             "icon": "apps",
+            #             "link": reverse_lazy(
+            #                 "admin:oauth2_provider_application_changelist"
+            #             ),
+            #         },
+            #         {
+            #             "title": _("Grant"),
+            #             "icon": "security",
+            #             "link": reverse_lazy("admin:oauth2_provider_grant_changelist"),
+            #         },
+            #         {
+            #             "title": _("ID Token"),
+            #             "icon": "fingerprint",
+            #             "link": reverse_lazy(
+            #                 "admin:oauth2_provider_idtoken_changelist"
+            #             ),
+            #         },
+            #         {
+            #             "title": _("Refresh Token"),
+            #             "icon": "autorenew",
+            #             "link": reverse_lazy(
+            #                 "admin:oauth2_provider_refreshtoken_changelist"
+            #             ),
+            #         },
+            #     ],
+            # },
             {
                 "title": _("News"),
                 "icon": "newspaper",

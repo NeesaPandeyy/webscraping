@@ -28,3 +28,8 @@ class NewsFilter(filters.FilterSet):
         lookup_expr="icontains",
         label="Tags",
     )
+    title = CustomFilter(
+        field_name="title",
+        lookup_expr="icontains",
+        label="title",
+    )

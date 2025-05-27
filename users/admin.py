@@ -4,6 +4,15 @@ from unfold.admin import ModelAdmin
 
 from .models import CustomUser, Support
 
+# from oauth2_provider.models import (
+#     AccessToken,
+#     Application,
+#     Grant,
+#     IDToken,
+#     RefreshToken,
+# )
+
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin, ModelAdmin):
@@ -43,7 +52,39 @@ class CustomUserAdmin(UserAdmin, ModelAdmin):
 
 
 @admin.register(Support)
-class SupportTicketAdmin(ModelAdmin):
+class SupportAdmin(ModelAdmin):
     list_display = ("subject", "user", "created_at")
     search_fields = ("subject", "message", "user__username")
     list_filter = ("created_at",)
+
+
+# admin.site.unregister(AccessToken)
+# admin.site.unregister(Application)
+# admin.site.unregister(Grant)
+# admin.site.unregister(IDToken)
+# admin.site.unregister(RefreshToken)
+
+
+# @admin.register(AccessToken)
+# class AccessTokenAdmin(ModelAdmin):
+#     pass
+
+
+# @admin.register(Application)
+# class ApplicationAdmin(ModelAdmin):
+#     pass
+
+
+# @admin.register(Grant)
+# class GrantAdmin(ModelAdmin):
+#     pass
+
+
+# @admin.register(IDToken)
+# class IDTokenAdmin(ModelAdmin):
+#     pass
+
+
+# @admin.register(RefreshToken)
+# class RefreshTokenAdmin(ModelAdmin):
+#     pass

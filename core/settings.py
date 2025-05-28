@@ -177,7 +177,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
@@ -367,6 +367,10 @@ CKEDITOR_5_CONFIGS = {
         }
     },
 }
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = "staff"
+CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+
 
 # tags
 
@@ -416,7 +420,7 @@ def permission_callback(request):
 
 UNFOLD = {
     "SITE_TITLE": "News Portal",
-    "SITE_HEADER": "News Portal",
+    "SITE_HEADER": "My Admin Dashboard",
     "SITE_DROPDOWN": [
         {
             "icon": "diamond",
@@ -426,20 +430,20 @@ UNFOLD = {
     ],
     "SITE_URL": "/",
     "SITE_ICON": {
-        "light": lambda request: static("news.jpg"),
-        "dark": lambda request: static("news.jpg"),
+        "light": lambda request: static("users/news.jpg"),
+        "dark": lambda request: static("users/news.jpg"),
     },
     "SITE_LOGO": {
-        "light": lambda request: static("news.jpg"),
-        "dark": lambda request: static("news.jpg"),
+        "light": lambda request: static("users/news.jpg"),
+        "dark": lambda request: static("users/news.jpg"),
     },
-    "SITE_SYMBOL": "home",
+    "SITE_LOGO_SMALL": "users/news.jpg",
     "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
             "type": "image/svg+xml",
-            "href": lambda request: static("favicon.svg"),
+            "href": lambda request: static("users/news.jpg.png"),
         },
     ],
     "SHOW_HISTORY": True,
@@ -451,6 +455,9 @@ UNFOLD = {
     "THEME": "dark",
     "LOGIN": {
         "image": lambda request: static("sample/login-bg.jpg"),
+        "redirect_after": lambda request: reverse_lazy("admin:index"),
+    },
+    "LOGOUT": {
         "redirect_after": lambda request: reverse_lazy("admin:index"),
     },
     "STYLES": [
@@ -544,46 +551,6 @@ UNFOLD = {
                     },
                 ],
             },
-            # {
-            #     "title": _("OAuth"),
-            #     "separator": True,
-            #     "collapsible": True,
-            #     "items": [
-            #         {
-            #             "title": _("Access Token"),
-            #             "icon": "vpn_key",
-            #             "link": reverse_lazy(
-            #                 "admin:oauth2_provider_accesstoken_changelist"
-            #             ),
-            #         },
-            #         {
-            #             "title": _("Application"),
-            #             "icon": "apps",
-            #             "link": reverse_lazy(
-            #                 "admin:oauth2_provider_application_changelist"
-            #             ),
-            #         },
-            #         {
-            #             "title": _("Grant"),
-            #             "icon": "security",
-            #             "link": reverse_lazy("admin:oauth2_provider_grant_changelist"),
-            #         },
-            #         {
-            #             "title": _("ID Token"),
-            #             "icon": "fingerprint",
-            #             "link": reverse_lazy(
-            #                 "admin:oauth2_provider_idtoken_changelist"
-            #             ),
-            #         },
-            #         {
-            #             "title": _("Refresh Token"),
-            #             "icon": "autorenew",
-            #             "link": reverse_lazy(
-            #                 "admin:oauth2_provider_refreshtoken_changelist"
-            #             ),
-            #         },
-            #     ],
-            # },
             {
                 "title": _("News"),
                 "icon": "newspaper",
@@ -606,9 +573,19 @@ UNFOLD = {
                         "link": reverse_lazy("admin:news_like_changelist"),
                     },
                     {
+                        "title": _("Tags"),
+                        "icon": "label",
+                        "link": reverse_lazy("admin:news_customtag_changelist"),
+                    },
+                    {
                         "title": _("Comments"),
                         "icon": "message",
                         "link": reverse_lazy("admin:news_comment_changelist"),
+                    },
+                    {
+                        "title": _("Bookmark"),
+                        "icon": "bookmark",
+                        "link": reverse_lazy("admin:news_bookmark_changelist"),
                     },
                     {
                         "title": _("Notifications"),

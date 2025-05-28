@@ -22,13 +22,13 @@ class SeleniumDriver:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
         driver.get(url)
-        time.sleep(2)
+        time.sleep(1)
         return driver
 
     @staticmethod
     def handle_alert(driver):
         try:
-            WebDriverWait(driver, 5).until(EC.alert_is_present())
+            WebDriverWait(driver, 2).until(EC.alert_is_present())
             alert = driver.switch_to.alert
             alert.accept()
         except Exception:
@@ -90,7 +90,7 @@ class NewsScraping:
             input_fields = driver.find_elements(By.TAG_NAME, "input")
             for input_field in input_fields:
                 try:
-                    WebDriverWait(driver, 5).until(EC.visibility_of(input_field))
+                    WebDriverWait(driver, 2).until(EC.visibility_of(input_field))
                     placeholder = input_field.get_attribute("placeholder")
                     if not placeholder or regex.match(placeholder):
                         input_field.send_keys(name)
@@ -132,8 +132,8 @@ class NewsScraping:
             print(f"Error in dropdown control: {e}")
             print("No dropdown1")
 
-        time.sleep(5)
-        driver.implicitly_wait(10)
+        time.sleep(1)
+        driver.implicitly_wait(2)
 
         try:
             dropdown_element = driver.find_element(

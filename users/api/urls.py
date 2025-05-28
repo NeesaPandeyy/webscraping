@@ -1,7 +1,13 @@
 from django.urls import path
 
-from .views import (AccountsAPIRootView, CreateSupportView, LoginView,
-                    ProfileView, RegisterView, UserView)
+from .views import (
+    AccountsAPIRootView,
+    CreateSupportView,
+    LoginView,
+    ProfileView,
+    RegisterView,
+    UserView,
+)
 
 urlpatterns = [
     path("", AccountsAPIRootView.as_view(), name="api-accounts"),

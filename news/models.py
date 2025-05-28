@@ -3,11 +3,27 @@ from django.db import models
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.managers import TaggableManager
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from core.models import TimestampAbstractModel
+from taggit.managers import TaggableManager
+
 
 from .managers import LikeManager
+
+
+class CustomTag(TagBase):
+    class Meta:
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+
+
+class TaggedNewsPost(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        CustomTag,
+        related_name="tag_items",
+        on_delete=models.CASCADE,
+    )
 
 
 class Category(MPTTModel):
@@ -44,7 +60,7 @@ class NewsPost(TimestampAbstractModel, models.Model):
         blank=True,
         related_name="news_category",
     )
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(through="TaggedNewsPost", blank=True)
     slug = models.SlugField(allow_unicode=True, blank=True, max_length=500)
     status = models.CharField(
         max_length=20,
@@ -107,3 +123,14 @@ class Comment(TimestampAbstractModel, MPTTModel):
 
     def __str__(self):
         return self.body[:10]
+
+
+class Bookmark(TimestampAbstractModel, models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(NewsPost, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+    def __str__(self):
+        return f"{self.user} bookmarked {self.post}"

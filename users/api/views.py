@@ -1,3 +1,5 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, permissions, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -7,13 +9,18 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser, Support
 
-from .serializers import (LoginsSerializer, RegistersSerializer,
-                          SupportSerializer, UserSerializer)
+from .serializers import (
+    LoginsSerializer,
+    RegistersSerializer,
+    SupportSerializer,
+    UserSerializer,
+)
 
 
 class AccountsAPIRootView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(auto_schema=None)
     def get(self, request, format=None):
         return Response(
             {
@@ -37,17 +44,36 @@ def get_tokens(user):
 class UserView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        responses={200: UserSerializer(many=True)},
+        tags=["users"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegistersSerializer
 
+    @swagger_auto_schema(
+        request_body=RegistersSerializer,
+        responses={201: UserSerializer},
+        tags=["users"],
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginsSerializer
 
+    @swagger_auto_schema(
+        request_body=LoginsSerializer,
+        responses={200: openapi.Response("Login successful", schema=UserSerializer)},
+        tags=["users"],
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -67,11 +93,42 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+    @swagger_auto_schema(
+        responses={200: UserSerializer},
+        tags=["users"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        request_body=UserSerializer,
+        responses={200: UserSerializer},
+        tags=["users"],
+    )
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        request_body=UserSerializer,
+        responses={200: UserSerializer},
+        tags=["users"],
+    )
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
 
 class CreateSupportView(generics.CreateAPIView):
     queryset = Support.objects.all()
     serializer_class = SupportSerializer
     permission_classes = [permissions.IsAdminUser]
+
+    @swagger_auto_schema(
+        request_body=SupportSerializer,
+        responses={201: SupportSerializer},
+        tags=["users"],
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

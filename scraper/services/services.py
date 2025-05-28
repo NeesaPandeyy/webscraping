@@ -121,6 +121,7 @@ class StockNews:
                             link_url = link_element.get_attribute("href")
                             if not StockRecord.objects.filter(url=link_url).exists():
                                 new_driver = SeleniumDriver.start_selenium(link_url)
+                                time.sleep(5)
                                 content = self.detail_content(new_driver, rule)
                                 all_news[link_url] = content
             else:

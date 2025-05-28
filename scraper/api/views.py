@@ -2,6 +2,7 @@ import json
 
 from django.templatetags.static import static
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -14,13 +15,18 @@ from scraper.documents import StockRecordDocument
 from scraper.models import Announcement, StockRecord, Symbol
 from scraper.services.sentiment import SentimentAnalysis
 
-from .serializers import (AnnouncementSerializer, SentimentSerializer,
-                          StockRecordSerializer, SymbolSerializer)
+from .serializers import (
+    AnnouncementSerializer,
+    SentimentSerializer,
+    StockRecordSerializer,
+    SymbolSerializer,
+)
 
 
 class ScraperAPIRootView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(auto_schema=None)
     def get(self, request, format=None):
         return Response(
             {
@@ -38,6 +44,12 @@ class SymbolListAPIView(generics.ListAPIView):
     queryset = Symbol.objects.all()
     serializer_class = SymbolSerializer
 
+    @swagger_auto_schema(
+        tags=["Scraped News"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
 
 class StockListAPIView(generics.ListAPIView):
     queryset = StockRecord.objects.all()
@@ -45,8 +57,15 @@ class StockListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StockRecordFilter
+
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
+    @swagger_auto_schema(
+        operation_summary="List of Scraped Stocks News",
+        tags=["Scraped News"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
         query = self.request.GET.get("search")
@@ -66,8 +85,16 @@ class SentimentListAPIView(generics.ListAPIView):
     filterset_class = StockRecordFilter
     pagination_class = CustomPagination
     queryset = StockRecord.objects.all()
+
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [JWTAuthentication]
+    @swagger_auto_schema(
+        operation_summary="Sentiment of Stocks News",
+        operation_description="Get Sentiment of Stocks News",
+        tags=["Scraped News"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -89,3 +116,9 @@ class AnnouncementListAPIView(generics.ListAPIView):
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = AnnouncementFilter
+
+    @swagger_auto_schema(
+        tags=["Announcements"],
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

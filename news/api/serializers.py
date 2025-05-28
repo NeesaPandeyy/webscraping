@@ -4,7 +4,13 @@ from urllib.parse import urljoin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Category, Comment, Like, NewsPost
+from news.models import Bookmark, Category, Comment, Like, NewsPost, CustomTag
+
+
+class CustomTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomTag
+        fields = ["name"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -35,22 +41,21 @@ class LikeSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
-    description = serializers.SerializerMethodField()
-    tags = TagListSerializerField()
-    # comments = CommentSerializer(many=True, read_only=True)
+    description = serializers.CharField()
+    tags = TagListSerializerField(required=False, allow_null=True, allow_empty=True)
 
-    def get_description(self, obj):
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+
         request = self.context.get("request")
-        if not request:
-            return obj.decription
-
-        base_url = request.build_absolute_uri("/")
-
-        return re.sub(
-            r'src="(\/media[^\\"]+)"',
-            lambda m: f'src="{urljoin(base_url, m.group(1))}',
-            obj.description,
-        )
+        if request:
+            base_url = request.build_absolute_uri("/")
+            rep["description"] = re.sub(
+                r'src="(/media[^"]+)"',
+                lambda m: f'src="{urljoin(base_url, m.group(1))}"',
+                rep["description"],
+            )
+        return rep
 
     class Meta:
         model = NewsPost
@@ -60,7 +65,6 @@ class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
             "description",
             "tags",
             "likes_count",
-            # "comments",
             "category",
             "slug",
             "created_at",
@@ -76,3 +80,19 @@ class CategorySerializer(serializers.ModelSerializer):
             "name",
             "parent",
         ]
+
+
+class BookmarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bookmark
+        fields = ["post", "user", "created_at"]
+        read_only_fields = ["user", "created_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("Authentication required.")
+        validated_data["user"] = request.user
+        instance, _ = Bookmark.objects.get_or_create(**validated_data)
+        return instance

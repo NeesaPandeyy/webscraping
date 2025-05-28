@@ -13,7 +13,6 @@ from .models import CustomUser, Support
 # )
 
 
-
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin, ModelAdmin):
     model = CustomUser

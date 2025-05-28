@@ -107,3 +107,14 @@ class Comment(TimestampAbstractModel, MPTTModel):
 
     def __str__(self):
         return self.body[:10]
+
+
+class Bookmark(TimestampAbstractModel, models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(NewsPost, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+    def __str__(self):
+        return f"{self.user} bookmarked {self.post}"

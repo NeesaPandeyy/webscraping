@@ -3,7 +3,7 @@ from django.db import models
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin
 
-from .models import Category, Comment, Like, NewsPost
+from .models import Bookmark, Category, Comment, Like, NewsPost
 
 
 @admin.register(Category)
@@ -86,6 +86,7 @@ class LikeAdmin(ModelAdmin):
     list_display = ("user", "post", "created_at")
     search_fields = ("user__username", "post__title")
     autocomplete_fields = ("user", "post")
+    list_filter = ("user", "post")
 
 
 @admin.register(Comment)
@@ -113,3 +114,11 @@ class CommentAdmin(DraggableMPTTAdmin, ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(Bookmark)
+class BookmarkAdmin(ModelAdmin):
+    list_display = ("user", "post", "created_at")
+    search_fields = ("user__username", "post__title")
+    autocomplete_fields = ("user", "post")
+    list_filter = ("user", "post")

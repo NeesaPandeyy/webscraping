@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Category, Comment, Like, NewsPost
+from news.models import Bookmark, Category, Comment, Like, NewsPost
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -76,3 +76,19 @@ class CategorySerializer(serializers.ModelSerializer):
             "name",
             "parent",
         ]
+
+
+class BookmarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bookmark
+        fields = ["post", "user", "created_at"]
+        read_only_fields = ["user", "created_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("Authentication required.")
+        validated_data["user"] = request.user
+        instance, _ = Bookmark.objects.get_or_create(**validated_data)
+        return instance

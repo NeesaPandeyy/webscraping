@@ -1,7 +1,11 @@
 from django.contrib import admin
-from django_celery_beat.models import (ClockedSchedule, CrontabSchedule,
-                                       IntervalSchedule, PeriodicTask,
-                                       SolarSchedule)
+from django_celery_beat.models import (
+    ClockedSchedule,
+    CrontabSchedule,
+    IntervalSchedule,
+    PeriodicTask,
+    SolarSchedule,
+)
 from unfold.admin import ModelAdmin
 
 admin.site.unregister(PeriodicTask)

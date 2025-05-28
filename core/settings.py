@@ -177,7 +177,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
@@ -416,7 +416,7 @@ def permission_callback(request):
 
 UNFOLD = {
     "SITE_TITLE": "News Portal",
-    "SITE_HEADER": "News Portal",
+    "SITE_HEADER": "My Admin Dashboard",
     "SITE_DROPDOWN": [
         {
             "icon": "diamond",
@@ -426,20 +426,20 @@ UNFOLD = {
     ],
     "SITE_URL": "/",
     "SITE_ICON": {
-        "light": lambda request: static("news.jpg"),
-        "dark": lambda request: static("news.jpg"),
+        "light": lambda request: static("users/news.jpg"),
+        "dark": lambda request: static("users/news.jpg"),
     },
     "SITE_LOGO": {
-        "light": lambda request: static("news.jpg"),
-        "dark": lambda request: static("news.jpg"),
+        "light": lambda request: static("users/news.jpg"),
+        "dark": lambda request: static("users/news.jpg"),
     },
-    "SITE_SYMBOL": "home",
+    "SITE_LOGO_SMALL": "users/news.jpg",
     "SITE_FAVICONS": [
         {
             "rel": "icon",
             "sizes": "32x32",
             "type": "image/svg+xml",
-            "href": lambda request: static("favicon.svg"),
+            "href": lambda request: static("users/news.jpg.png"),
         },
     ],
     "SHOW_HISTORY": True,
@@ -451,6 +451,9 @@ UNFOLD = {
     "THEME": "dark",
     "LOGIN": {
         "image": lambda request: static("sample/login-bg.jpg"),
+        "redirect_after": lambda request: reverse_lazy("admin:index"),
+    },
+    "LOGOUT": {
         "redirect_after": lambda request: reverse_lazy("admin:index"),
     },
     "STYLES": [
@@ -609,6 +612,11 @@ UNFOLD = {
                         "title": _("Comments"),
                         "icon": "message",
                         "link": reverse_lazy("admin:news_comment_changelist"),
+                    },
+                    {
+                        "title": _("Bookmark"),
+                        "icon": "bookmark",
+                        "link": reverse_lazy("admin:news_bookmark_changelist"),
                     },
                     {
                         "title": _("Notifications"),

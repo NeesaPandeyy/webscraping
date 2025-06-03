@@ -1,9 +1,25 @@
+from django import forms
 from django.contrib import admin
 from django.db import models
+from django_ckeditor_5.widgets import CKEditor5Widget
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin
 
-from .models import Bookmark, Category, Comment, Like, NewsPost, CustomTag
+from .models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
+
+
+class NewsPostAdminForm(forms.ModelForm):
+    class Meta:
+        model = NewsPost
+        fields = "__all__"
+        widgets = {
+            "description": CKEditor5Widget(config_name="extends"),
+        }
+
+    class Media:
+        js = [
+            "/static/js/ckeditor5-upload-adapter.js",
+        ]
 
 
 @admin.register(CustomTag)
@@ -36,6 +52,7 @@ class CategoryAdmin(DraggableMPTTAdmin, ModelAdmin):
 
 @admin.register(NewsPost)
 class NewsPostAdmin(ModelAdmin):
+    form = NewsPostAdminForm
     list_display = (
         "title",
         "category",

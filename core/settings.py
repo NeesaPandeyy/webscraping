@@ -38,6 +38,11 @@ ALLOWED_HOSTS = ["*"]
 SITE_ID = 1
 # Application definition
 
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
+
+
 INSTALLED_APPS = [
     "unfold",
     "users",
@@ -60,7 +65,8 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "drf_yasg",
     "django_elasticsearch_dsl",
-    "django_ckeditor_5",
+    "ckeditor",
+    "ckeditor_uploader",
     "django.forms",
     "mptt",
     "taggit",
@@ -179,6 +185,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # or os.path.join(BASE_DIR, "static")
+]
 
 
 # Default primary key field type
@@ -252,124 +261,129 @@ customColorPalette = [
     {"color": "hsl(207, 90%, 54%)", "label": "Blue"},
 ]
 
+BASE_URL = "https://http://127.0.0.1:8000/"
 
-CKEDITOR_5_CONFIGS = {
+
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_CONFIGS = {
     "default": {
-        "toolbar": {
-            "items": [
-                "heading",
-                "|",
-                "bold",
-                "italic",
-                "link",
-                "bulletedList",
-                "numberedList",
-                "blockQuote",
-                "imageUpload",
-            ],
-        }
-    },
-    "extends": {
-        "blockToolbar": [
-            "paragraph",
-            "heading1",
-            "heading2",
-            "heading3",
-            "|",
-            "bulletedList",
-            "numberedList",
-            "|",
-            "blockQuote",
+        "skin": "moono",
+        "toolbar_Basic": [["Source", "-", "Bold", "Italic"]],
+        "removePlugins": "iframe",
+        "allowedContent": True,
+        "extraAllowedContent": "iframe[*]{*}(*) video[*]{*}(*); source[*]{*}(*)",
+        "toolbar_YourCustomToolbarConfig": [
+            {
+                "name": "document",
+                "items": [
+                    "Source",
+                    "-",
+                    "Save",
+                    "NewPage",
+                    "Preview",
+                    "-",
+                ],
+            },
+            {
+                "name": "clipboard",
+                "items": [
+                    "Cut",
+                    "Copy",
+                    "Paste",
+                    "-",
+                    "Undo",
+                    "Redo",
+                ],
+            },
+            {"name": "editing", "items": ["Find", "Replace", "-", "SelectAll"]},
+            {
+                "name": "basicstyles",
+                "items": [
+                    "Bold",
+                    "Italic",
+                    "Underline",
+                    "Strike",
+                    "Subscript",
+                    "Superscript",
+                    "-",
+                ],
+            },
+            "/",
+            {
+                "name": "paragraph",
+                "items": [
+                    "NumberedList",
+                    "BulletedList",
+                    "-",
+                    "Outdent",
+                    "Indent",
+                    "-",
+                    "JustifyLeft",
+                    "JustifyCenter",
+                    "JustifyRight",
+                    "JustifyBlock",
+                    "-",
+                ],
+            },
+            {"name": "links", "items": ["Link", "Unlink", "Anchor"]},
+            {
+                "name": "insert",
+                "items": [
+                    "Image",
+                    "Table",
+                    "HorizontalRule",
+                    "Smiley",
+                    "SpecialChar",
+                    "PageBreak",
+                    "Iframe",
+                    "Youtube",
+                    "Html5video",
+                ],
+            },
+            {"name": "colors", "items": ["TextColor", "BGColor"]},
+            "/",
+            {"name": "styles", "items": ["Styles", "Format", "Font", "FontSize"]},
+            {
+                "name": "yourcustomtools",
+                "items": [
+                    "Preview",
+                    "Maximize",
+                ],
+            },
         ],
-        "toolbar": {
-            "items": [
-                "heading",
-                "|",
-                "outdent",
-                "indent",
-                "|",
-                "bold",
-                "italic",
-                "underline",
-                "subscript",
-                "superscript",
-                "highlight",
-                "|",
-                "link",
-                "insertImage",
-                "uploadVideo",
-                "|",
-                "sourceEditing",
-                "|",
-                "bulletedList",
-                "numberedList",
-                "todoList",
-                "blockQuote",
-                "|",
-                "fontSize",
-                "fontFamily",
-                "fontColor",
-                "fontBackgroundColor",
-            ],
-            "shouldNotGroupWhenFull": True,
-        },
-        "image": {
-            "toolbar": [
-                "imageTextAlternative",
-                "|",
-                "imageStyle:alignLeft",
-                "imageStyle:alignRight",
-                "imageStyle:alignCenter",
-                "imageStyle:side",
-                "|",
-            ],
-            "styles": [
-                "full",
-                "side",
-                "alignLeft",
-                "alignRight",
-                "alignCenter",
-            ],
-        },
-        "heading": {
-            "options": [
-                {
-                    "model": "paragraph",
-                    "title": "Paragraph",
-                    "class": "ck-heading_paragraph",
-                },
-                {
-                    "model": "heading1",
-                    "view": "h1",
-                    "title": "Heading 1",
-                    "class": "ck-heading_heading1",
-                },
-                {
-                    "model": "heading2",
-                    "view": "h2",
-                    "title": "Heading 2",
-                    "class": "ck-heading_heading2",
-                },
-                {
-                    "model": "heading3",
-                    "view": "h3",
-                    "title": "Heading 3",
-                    "class": "ck-heading_heading3",
-                },
+        "toolbar": "YourCustomToolbarConfig",
+        "toolbarGroups": [
+            {"name": "document", "groups": ["mode", "document", "doctools"]}
+        ],
+        "height": 291,
+        "width": "100%",
+        "tabSpaces": 4,
+        "extraPlugins": ",".join(
+            [
+                "uploadimage",
+                "uploadfile",
+                "uploadwidget",
+                "filetools",
+                "autolink",
+                "widget",
+                "autoembed",
+                "embedsemantic",
+                "clipboard",
+                "autogrow",
+                "widget",
+                "lineutils",
+                "clipboard",
+                "dialog",
+                "dialogui",
+                "elementspath",
+                "youtube",
+                "html5video",
             ]
-        },
-    },
-    "list": {
-        "properties": {
-            "styles": "true",
-            "startIndex": "true",
-            "reversed": "true",
-        }
-    },
+        ),
+    }
 }
-CKEDITOR_5_FILE_UPLOAD_PERMISSION = "staff"
-CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
-CKEDITOR_UPLOAD_PATH = 'uploads/'
 
 
 # tags

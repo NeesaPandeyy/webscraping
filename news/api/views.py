@@ -10,22 +10,15 @@ from rest_framework.views import APIView
 
 from core.pagination import CustomPagination
 from news.api.filters import NewsFilter
-from news.models import Bookmark, Category, Comment, Like, NewsPost, CustomTag
+from news.models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
 
 from .serializers import (
     BookmarkSerializer,
     CategorySerializer,
     CommentSerializer,
-    NewsSerializer,
     CustomTagSerializer,
+    NewsSerializer,
 )
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.core.files.storage import default_storage
-
-
-import os
-from django.conf import settings
 
 
 class NewsAPIRootView(APIView):
@@ -38,42 +31,12 @@ class NewsAPIRootView(APIView):
                 "category": reverse("category-api", request=request, format=format),
                 "newslist": reverse("newslist-api", request=request, format=format),
                 "newscreate": reverse("newscreate-api", request=request, format=format),
-                "upload": reverse("upload-api", request=request, format=format),
                 "tags": reverse("tags-api", request=request, format=format),
                 "like": reverse("like-api", request=request, format=format),
                 "comment": reverse("comment-api", request=request, format=format),
                 "bookmark": reverse("bookmark-api", request=request, format=format),
             }
         )
-
-
-class UploadView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get(self, request, *args, **kwargs):
-        upload_dir = os.path.join(settings.MEDIA_ROOT, "uploads")
-        base_url = request.build_absolute_uri(settings.MEDIA_URL)
-
-        if not os.path.exists(upload_dir):
-            return Response({"images": []})
-
-        image_urls = []
-        for filename in os.listdir(upload_dir):
-            if filename.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
-                image_urls.append(base_url + "uploads/" + filename)
-
-        return Response({"images": image_urls})
-
-    def post(self, request, *args, **kwargs):
-        image = request.FILES.get("image")
-        if not image:
-            return Response({"error": "No image uploaded."}, status=400)
-
-        file_path = default_storage.save(os.path.join("uploads", image.name), image)
-        image_url = request.build_absolute_uri(settings.MEDIA_URL + file_path)
-
-        return Response({"url": image_url}, status=201)
 
 
 class CustomTagList(generics.ListCreateAPIView):
@@ -85,7 +48,7 @@ class PublishedNewsView(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = NewsFilter
     pagination_class = CustomPagination
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = NewsSerializer
 
     @swagger_auto_schema(
@@ -116,7 +79,7 @@ class PublishedNewsView(generics.ListAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        return NewsPost.objects.filter(status__in=["published"])
+        return NewsPost.objects.filter(status__in=["published"]).order_by("-created_at")
 
 
 class NewsCreateAPIView(generics.CreateAPIView):
@@ -129,22 +92,17 @@ class NewsCreateAPIView(generics.CreateAPIView):
 
 
 class PublishedNewsRetrieveView(generics.RetrieveAPIView):
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = NewsFilter
+    serializer_class = NewsSerializer
+    queryset = NewsPost.objects.filter(status="published")
+    lookup_field = "pk"
     pagination_class = CustomPagination
 
-    # permission_classes = [IsAdminUser]
-    serializer_class = NewsSerializer
-
     @swagger_auto_schema(
-        operation_summary="Retrieve Published News",
+        operation_summary="Retrieve a single published news item",
         tags=["Custom News"],
     )
     def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return NewsPost.objects.filter(status__in=["published"])
+        return super().get(request, *args, **kwargs)
 
 
 class CategoryView(generics.ListAPIView):
@@ -170,16 +128,9 @@ class CommentView(generics.ListAPIView):
         return self.list(request, *args, **kwargs)
 
 
-# class LikeView(generics.ListAPIView):
-#     # permission_classes = [IsAuthenticated]
-
-#     queryset = Like.objects.filter(is_liked=True)
-#     serializer_class = LikeSerializer
-#     pagination_class = CustomPagination
-
-
 class LikeView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
     @swagger_auto_schema(
         tags=["Like"],
     )

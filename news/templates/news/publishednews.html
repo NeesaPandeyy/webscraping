@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Published News</title>
+  </head>
+  <body>
+    <h1>Published News</h1>
+    <ul>
+      {% for post in news_list %}
+      <li>
+        <strong>{{ post.title }}</strong>
+        <p>{{ post.description|safe }}</p>
+      </li>
+      {% empty %}
+      <li>No news available.</li>
+      {% endfor %}
+    </ul>
+    <p><a href="{% url 'news-create' %}">Create News Post</a></p>
+  </body>
+</html>

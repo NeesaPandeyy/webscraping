@@ -1,10 +1,9 @@
-import re
-from urllib.parse import urljoin
 
+from bs4 import BeautifulSoup
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Bookmark, Category, Comment, Like, NewsPost, CustomTag
+from news.models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
 
 
 class CustomTagSerializer(serializers.ModelSerializer):
@@ -44,19 +43,6 @@ class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
     description = serializers.CharField()
     tags = TagListSerializerField(required=False, allow_null=True, allow_empty=True)
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-
-        request = self.context.get("request")
-        if request:
-            base_url = request.build_absolute_uri("/")
-            rep["description"] = re.sub(
-                r'src="(/media[^"]+)"',
-                lambda m: f'src="{urljoin(base_url, m.group(1))}"',
-                rep["description"],
-            )
-        return rep
-
     class Meta:
         model = NewsPost
         fields = [
@@ -70,6 +56,19 @@ class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        if request:
+            soup = BeautifulSoup(data["description"], "html.parser")
+            for tag in soup.find_all(["img", "video", "source"]):
+                src = tag.get("src")
+                if src and src.startswith("/"):
+                    full_url = request.build_absolute_uri(src)
+                    tag["src"] = full_url
+            data["description"] = str(soup)
+        return data
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -111,7 +111,7 @@ class SentimentListAPIView(generics.ListAPIView):
 
 
 class AnnouncementListAPIView(generics.ListAPIView):
-    queryset = Announcement.objects.all()
+    queryset = Announcement.objects.all().order_by("-date")
     serializer_class = AnnouncementSerializer
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)

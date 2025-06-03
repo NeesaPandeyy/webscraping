@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create News</title>
+  </head>
+  <body>
+    <h1>Create News Post</h1>
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">Submit</button>
+    </form>
+    <p><a href="{% url 'news-list' %}">View All Published News</a></p>
+  </body>
+</html>

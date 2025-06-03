@@ -132,7 +132,7 @@ class NewsURLRuleAdmin(ModelAdmin):
 
 @admin.register(Announcement)
 class AnnouncementAdmin(ModelAdmin):
-    list_display = ("date", "url", "announcement", "tags")
+    list_display = ("id", "date", "url", "announcement", "tags")
     search_fields = ("announcement", "tags")
     list_filter = ("date", "tags")
     ordering = ("-date",)

@@ -1,13 +1,12 @@
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
-from django_ckeditor_5.fields import CKEditor5Field
 from mptt.models import MPTTModel, TreeForeignKey
-from taggit.models import TagBase, GenericTaggedItemBase
+from taggit.managers import TaggableManager
+from taggit.models import GenericTaggedItemBase, TagBase
 
 from core.models import TimestampAbstractModel
-from taggit.managers import TaggableManager
-
 
 from .managers import LikeManager
 
@@ -52,7 +51,9 @@ class NewsPost(TimestampAbstractModel, models.Model):
         APPROVED = "approved", "Approved"
 
     title = models.CharField(max_length=500)
-    description = CKEditor5Field("Content", config_name="extends")
+    description = RichTextUploadingField(
+        config_name="default",
+    )
     category = TreeForeignKey(
         "Category",
         on_delete=models.SET_NULL,

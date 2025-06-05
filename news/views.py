@@ -1,12 +1,12 @@
 from django.shortcuts import redirect, render
 
-from .forms import NewsPostForm
+from .forms import NewsPostAdminForm
 from .models import NewsPost
 
 
 def create_news_view(request):
     if request.method == "POST":
-        form = NewsPostForm(request.POST)
+        form = NewsPostAdminForm(request.POST)
         if form.is_valid():
             news = form.save(commit=False)
             news.creator = request.user
@@ -14,7 +14,7 @@ def create_news_view(request):
             form.save_m2m()
             return redirect("news-list")
     else:
-        form = NewsPostForm()
+        form = NewsPostAdminForm()
     return render(request, "news/createnews.html", {"form": form})
 
 

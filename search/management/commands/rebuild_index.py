@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from news.models import NewsPost
 from scraper.models import StockRecord
 from search.documents import NewsPostIndex, StockRecordIndex

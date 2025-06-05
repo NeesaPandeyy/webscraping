@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from elasticsearch_dsl.query import Q
+
 from search.documents import NewsPostIndex, StockRecordIndex
 
 

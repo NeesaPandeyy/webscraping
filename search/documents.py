@@ -1,5 +1,6 @@
 from django_elasticsearch_dsl import Document, Index, fields
 from django_elasticsearch_dsl.registries import registry
+
 from news.models import NewsPost
 from scraper.models import StockRecord
 

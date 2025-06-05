@@ -11,7 +11,6 @@ from rest_framework.views import APIView
 
 from core.pagination import CustomPagination
 from scraper.api.filters import AnnouncementFilter, StockRecordFilter
-from scraper.documents import StockRecordDocument
 from scraper.models import Announcement, StockRecord, Symbol
 from scraper.services.sentiment import SentimentAnalysis
 
@@ -52,7 +51,7 @@ class SymbolListAPIView(generics.ListAPIView):
 
 
 class StockListAPIView(generics.ListAPIView):
-    queryset = StockRecord.objects.all()
+    queryset = StockRecord.objects.all().order_by("id")
     serializer_class = StockRecordSerializer
     pagination_class = CustomPagination
     filter_backends = (filters.DjangoFilterBackend,)
@@ -66,17 +65,6 @@ class StockListAPIView(generics.ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    def get_queryset(self):
-        query = self.request.GET.get("search")
-        if query:
-            search = StockRecordDocument.search().query(
-                "multi_match", query=query, fields=["title", "summary", "symbol"]
-            )
-            results = search[:100]
-            ids = [hit.meta.id for hit in results]
-            return StockRecord.objects.filter(id__in=ids)
-        return StockRecord.objects.all()
 
 
 class SentimentListAPIView(generics.ListAPIView):

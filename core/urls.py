@@ -48,6 +48,7 @@ urlpatterns = (
         path("api/", include("core.api.urls")),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
+        path("search/", include("search.urls")),
         path("", include("users.urls")),
         path("news/", include("news.urls")),
         path("api/users/", include("users.api.urls")),

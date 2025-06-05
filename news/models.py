@@ -82,6 +82,8 @@ class NewsPost(TimestampAbstractModel, models.Model):
         if self._state.adding and self.status == self.NewsStatus.DRAFT:
             self.status = self.NewsStatus.PENDING_REVIEW
 
+        
+
         super().save(*args, **kwargs)
 
     def __str__(self):

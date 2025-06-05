@@ -1,4 +1,3 @@
-
 from bs4 import BeautifulSoup
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
@@ -37,6 +36,9 @@ class LikeSerializer(serializers.ModelSerializer):
             "user",
             "post",
         ]
+
+    def get_queryset(self):
+        return Like.objects.filter(post__status=NewsPost.NewsStatus.PUBLISHED)
 
 
 class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):

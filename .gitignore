@@ -4,3 +4,6 @@ __pycache__/
 *.pyo
 api.http
 media/
+static/
+staticfiles/
+celery_admin/

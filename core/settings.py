@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "drf_yasg",
     "django_elasticsearch_dsl",
+    "django_elasticsearch_dsl_drf",
     "ckeditor",
     "ckeditor_uploader",
     "django.forms",
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "search",
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -249,7 +251,14 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 
 # elastic-search
-ELASTICSEARCH_DSL = {"default": {"hosts": "http://localhost:9200"}}
+ELASTICSEARCH_HOST = {
+    "default": {"hosts": "http://elasticsearch:9200", "verify_certs": False}
+}
+
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "http://localhost:9200"},
+}
+
 
 # ckeditor
 customColorPalette = [

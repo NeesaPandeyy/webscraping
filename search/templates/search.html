@@ -1,0 +1,24 @@
+<form method="get" action="{% url 'search_all' %}">
+  <input type="text" name="q" placeholder="Search..." value="{{ query }}" />
+  <button type="submit">Search</button>
+</form>
+
+<h2>News Results ({{ news_total }})</h2>
+<ul>
+  {% for item in news_results %}
+  <li><strong>{{ item.title }}</strong><br />{{ item.description }}</li>
+  {% empty %}
+  <li>No news results found.</li>
+  {% endfor %}
+</ul>
+
+<h2>Stock Records ({{ stock_total }})</h2>
+<ul>
+  {% for item in stock_results %}
+  <li>
+    <strong>{{ item.title }}</strong><br />{{ item.summary|truncatechars:150 }}
+  </li>
+  {% empty %}
+  <li>No stock records found.</li>
+  {% endfor %}
+</ul>

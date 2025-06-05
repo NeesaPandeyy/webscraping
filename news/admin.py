@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib import admin
-from django.db import models
 from django_ckeditor_5.widgets import CKEditor5Widget
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin
@@ -77,23 +76,20 @@ class NewsPostAdmin(ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         user = request.user
+
         if user.is_superuser:
             return qs
-        return qs.filter(models.Q(status=self.PUBLISHED) | models.Q(creator=user))
 
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.creator = request.user
-        super().save_model(request, obj, form, change)
+        return qs.filter(creator=user)
 
     def approve_news(self, request, queryset):
-        updated = queryset.update(status=self.PUBLISHED)
+        updated = queryset.update(status=NewsPost.NewsStatus.APPROVED)
         self.message_user(request, "Your post has been approved and published")
 
     approve_news.short_description = "Approve selected news"
 
     def reject_news(self, request, queryset):
-        updated = queryset.update(status=self.REJECTED)
+        updated = queryset.update(status=NewsPost.NewsStatus.REJECTED)
         self.message_user(request, "Your post has been rejected")
 
     reject_news.short_description = "Reject selected news"
@@ -103,13 +99,38 @@ class NewsPostAdmin(ModelAdmin):
             return ["status"]
         return super().get_readonly_fields(request, obj)
 
+    def save_model(self, request, obj, form, change):
+        if not obj.creator_id:
+            obj.creator = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(Like)
 class LikeAdmin(ModelAdmin):
     list_display = ("user", "post", "created_at")
-    search_fields = ("user__username", "post__title")
+    search_fields = ("post__title",)
     autocomplete_fields = ("user", "post")
     list_filter = ("user", "post")
+    readonly_fields = ("user",)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+
+        if user.is_superuser:
+            return qs.filter(post__status=NewsPost.NewsStatus.PUBLISHED)
+
+        return qs.filter(post__creator=user, post__status=NewsPost.NewsStatus.PUBLISHED)
+
+    def get_search_results(self, request, queryset, search_term):
+        filtered_qs = queryset.filter(post__status=NewsPost.NewsStatus.PUBLISHED)
+
+        return super().get_search_results(request, filtered_qs, search_term)
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.user = request.user
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Comment)

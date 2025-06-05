@@ -48,7 +48,7 @@ class PublishedNewsView(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = NewsFilter
     pagination_class = CustomPagination
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = NewsSerializer
 
     @swagger_auto_schema(
@@ -85,7 +85,7 @@ class PublishedNewsView(generics.ListAPIView):
 class NewsCreateAPIView(generics.CreateAPIView):
     queryset = NewsPost.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

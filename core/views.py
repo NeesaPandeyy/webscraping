@@ -16,5 +16,6 @@ class APIRootView(APIView):
                 "notification": reverse(
                     "api-notification", request=request, format=format
                 ),
+                "search": reverse("api-search", request=request, format=format),
             }
         )

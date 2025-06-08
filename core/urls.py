@@ -55,6 +55,7 @@ urlpatterns = (
         path("api/stock/", include("scraper.api.urls")),
         path("api/notification/", include("notifications.api.urls")),
         path("api/news/", include("news.api.urls")),
+        path("api/search/", include("search.api.urls")),
         path("ckeditor/", include("ckeditor_uploader.urls")),
         path("api-token-auth/", obtain_auth_token),
         path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

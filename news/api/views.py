@@ -43,6 +43,18 @@ class CustomTagList(generics.ListCreateAPIView):
     queryset = CustomTag.objects.all()
     serializer_class = CustomTagSerializer
 
+    @swagger_auto_schema(
+        tags=["Tags"],
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        tags=["Tags"],
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
 
 class PublishedNewsView(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
@@ -85,7 +97,13 @@ class PublishedNewsView(generics.ListAPIView):
 class NewsCreateAPIView(generics.CreateAPIView):
     queryset = NewsPost.objects.all()
     serializer_class = NewsSerializer
+
     # permission_classes = [IsAuthenticated]
+    @swagger_auto_schema(
+        tags=["Custom News"],
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

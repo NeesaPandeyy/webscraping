@@ -1,12 +1,7 @@
 from django.urls import path
 
-from .views import (
-    AnnouncementListAPIView,
-    ScraperAPIRootView,
-    SentimentListAPIView,
-    StockListAPIView,
-    SymbolListAPIView,
-)
+from .views import (AnnouncementListAPIView, ScraperAPIRootView,
+                    SentimentListAPIView, StockListAPIView, SymbolListAPIView)
 
 urlpatterns = [
     path("", ScraperAPIRootView.as_view(), name="api-scraper"),

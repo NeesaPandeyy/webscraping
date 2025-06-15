@@ -1,16 +1,8 @@
 from django.urls import path
 
-from .views import (
-    BookmarkView,
-    CategoryView,
-    CommentView,
-    CustomTagList,
-    LikeView,
-    NewsAPIRootView,
-    NewsCreateAPIView,
-    PublishedNewsRetrieveView,
-    PublishedNewsView,
-)
+from .views import (BookmarkView, CategoryView, CommentView, CustomTagList,
+                    LikeView, NewsAPIRootView, NewsCreateAPIView,
+                    PublishedNewsRetrieveView, PublishedNewsView)
 
 urlpatterns = [
     path("", NewsAPIRootView.as_view(), name="api-news"),

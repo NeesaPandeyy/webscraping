@@ -12,13 +12,9 @@ from core.pagination import CustomPagination
 from news.api.filters import NewsFilter
 from news.models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
 
-from .serializers import (
-    BookmarkSerializer,
-    CategorySerializer,
-    CommentSerializer,
-    CustomTagSerializer,
-    NewsSerializer,
-)
+from .serializers import (BookmarkSerializer, CategorySerializer,
+                          CommentSerializer, CustomTagSerializer,
+                          NewsSerializer)
 
 
 class NewsAPIRootView(APIView):
@@ -65,26 +61,6 @@ class PublishedNewsView(generics.ListAPIView):
 
     @swagger_auto_schema(
         operation_summary="List Published News",
-        manual_parameters=[
-            openapi.Parameter(
-                name="category",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by category",
-            ),
-            openapi.Parameter(
-                name="tags",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by tags",
-            ),
-            openapi.Parameter(
-                name="title",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by title",
-            ),
-        ],
         tags=["Custom News"],
     )
     def get(self, request, *args, **kwargs):
@@ -116,6 +92,32 @@ class PublishedNewsRetrieveView(generics.RetrieveAPIView):
     pagination_class = CustomPagination
 
     @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="category",
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description="Filter news posts by category (exact match)",
+                required=False,
+                example="Politics",
+            ),
+            openapi.Parameter(
+                name="tags",
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description="Filter news posts by tags (comma-separated or single tag)",
+                required=False,
+                example="election,2025",
+            ),
+            openapi.Parameter(
+                name="title",
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description="Filter news posts by title (partial or exact match)",
+                required=False,
+                example="Budget 2025",
+            ),
+        ],
         operation_summary="Retrieve a single published news item",
         tags=["Custom News"],
     )

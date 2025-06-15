@@ -9,12 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser, Support
 
-from .serializers import (
-    LoginsSerializer,
-    RegistersSerializer,
-    SupportSerializer,
-    UserSerializer,
-)
+from .serializers import (LoginsSerializer, RegistersSerializer,
+                          SupportSerializer, UserSerializer)
 
 
 class AccountsAPIRootView(APIView):

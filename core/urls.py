@@ -23,11 +23,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView, TokenVerifyView)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -42,20 +39,20 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
-
 urlpatterns = (
     [
         path("api/", include("core.api.urls")),
         path("admin/", admin.site.urls),
-        path("accounts/", include("allauth.urls")),
         path("search/", include("search.urls")),
-        path("", include("users.urls")),
-        path("news/", include("news.urls")),
+        path("users/", include("users.urls")),
+        path("", include("news.urls")),
         path("api/users/", include("users.api.urls")),
         path("api/stock/", include("scraper.api.urls")),
         path("api/notification/", include("notifications.api.urls")),
         path("api/news/", include("news.api.urls")),
         path("api/search/", include("search.api.urls")),
+        path("accounts/", include("allauth.urls")),
+        path("accounts/nepsetrend/", include("nepseauth.urls")),
         path("ckeditor/", include("ckeditor_uploader.urls")),
         path("api-token-auth/", obtain_auth_token),
         path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

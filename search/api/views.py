@@ -1,5 +1,4 @@
 from django_elasticsearch_dsl_drf.filter_backends import SearchFilterBackend
-
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny

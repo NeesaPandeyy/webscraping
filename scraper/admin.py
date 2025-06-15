@@ -8,17 +8,8 @@ from django.urls import path
 from dotenv import load_dotenv
 from unfold.admin import ModelAdmin
 
-from .models import (
-    Announcement,
-    Keyword,
-    NewsURL,
-    NewsURLRule,
-    Sector,
-    StockNewsURL,
-    StockNewsURLRule,
-    StockRecord,
-    Symbol,
-)
+from .models import (Announcement, Keyword, NewsURL, NewsURLRule, Sector,
+                     StockNewsURL, StockNewsURLRule, StockRecord, Symbol)
 
 load_dotenv()
 

@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 
 from .unfold import UNFOLD  # noqa F401
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,8 +40,7 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS = ["192.168.1.102", "localhost", "127.0.0.1"]
 
-SITE_ID = 1
-# Application definition
+SITE_ID = 2
 
 
 DJANGO_APPS = [
@@ -58,6 +58,7 @@ LOCAL_APPS = [
     "news",
     "notifications",
     "search",
+    "nepseauth",
 ]
 
 THIRD_PARTY_APPS = [
@@ -84,14 +85,15 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.oauth2",
     "allauth.socialaccount.providers.google",
+    "nepseauth.providers.nepsetrend",
 ]
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 
+NT_OAUTH_BASE_URL = os.getenv("NT_OAUTH_BASE_URL")
+BASE_URL = "http://localhost:8000"
 
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {"SCOPE": ["profile", "email"], "AUTH_PARAMS": {"access_type": "online"}}
-}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -108,13 +110,16 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
-LOGIN_DIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/"
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
+SOCIALACCOUNT_ADAPTER = "nepseauth.providers.nepsetrend.views.MySocialAccountAdapter"
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
-
 CORS_ALLOW_CREDENTIALS = True
 
 

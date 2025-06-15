@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Google Sign-In Example</title>
+    <title>Nepsetrend Sign-In Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
     {% load socialaccount %}
-    <h2>Google Login</h2>
-    <a href="{% provider_login_url 'google'%}?next=/">Login With Google</a>
+    <h2>Nepsetrend Login</h2>
+    <a href="{% provider_login_url 'nepsetrend'%}?next=/">Login With Nepsetrend</a>
 
     {% if user.is_authenticated %}
     <p> You are logged in as {{ user.email }}</p>

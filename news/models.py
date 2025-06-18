@@ -116,7 +116,7 @@ class Comment(TimestampAbstractModel, MPTTModel):
     )
     body = models.TextField()
     parent = TreeForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
     )
 
     class MPTTMeta:

@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -9,12 +8,17 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from core.pagination import CustomPagination
+from core.permissions import IsAuthenticatedandIsOwner
 from news.api.filters import NewsFilter
 from news.models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
 
-from .serializers import (BookmarkSerializer, CategorySerializer,
-                          CommentSerializer, CustomTagSerializer,
-                          NewsSerializer)
+from .serializers import (
+    BookmarkSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    CustomTagSerializer,
+    NewsSerializer,
+)
 
 
 class NewsAPIRootView(APIView):
@@ -29,7 +33,9 @@ class NewsAPIRootView(APIView):
                 "newscreate": reverse("newscreate-api", request=request, format=format),
                 "tags": reverse("tags-api", request=request, format=format),
                 "like": reverse("like-api", request=request, format=format),
-                "comment": reverse("comment-api", request=request, format=format),
+                "comment": reverse(
+                    "comment-api", kwargs={"post_id": 1}, request=request, format=format
+                ),
                 "bookmark": reverse("bookmark-api", request=request, format=format),
             }
         )
@@ -73,8 +79,8 @@ class PublishedNewsView(generics.ListAPIView):
 class NewsCreateAPIView(generics.CreateAPIView):
     queryset = NewsPost.objects.all()
     serializer_class = NewsSerializer
+    permission_classes = [IsAuthenticated]
 
-    # permission_classes = [IsAuthenticated]
     @swagger_auto_schema(
         tags=["Custom News"],
     )
@@ -85,44 +91,18 @@ class NewsCreateAPIView(generics.CreateAPIView):
         serializer.save(creator=self.request.user)
 
 
-class PublishedNewsRetrieveView(generics.RetrieveAPIView):
+class PublishedNewsDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NewsSerializer
-    queryset = NewsPost.objects.filter(status="published")
+    queryset = NewsPost.objects.all()
     lookup_field = "pk"
     pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                name="category",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by category (exact match)",
-                required=False,
-                example="Politics",
-            ),
-            openapi.Parameter(
-                name="tags",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by tags (comma-separated or single tag)",
-                required=False,
-                example="election,2025",
-            ),
-            openapi.Parameter(
-                name="title",
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description="Filter news posts by title (partial or exact match)",
-                required=False,
-                example="Budget 2025",
-            ),
-        ],
-        operation_summary="Retrieve a single published news item",
         tags=["Custom News"],
     )
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        return self.retrieve(request, *args, **kwargs)
 
 
 class CategoryView(generics.ListAPIView):
@@ -136,16 +116,52 @@ class CategoryView(generics.ListAPIView):
         return self.list(request, *args, **kwargs)
 
 
-class CommentView(generics.ListAPIView):
-    queryset = Comment.objects.all()
+class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
 
-    @swagger_auto_schema(
-        tags=["Comments"],
-    )
+    def get_queryset(self):
+        post_id = self.kwargs.get("post_id")
+        return (
+            Comment.objects.filter(post_id=post_id, parent=None)
+            .select_related("user")
+            .prefetch_related("replies")
+        )
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get("post_id")
+        serializer.save(user=self.request.user, post_id=post_id)
+
+    @swagger_auto_schema(tags=["Comments"])
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["Comments"])
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedandIsOwner]
+
+    @swagger_auto_schema(tags=["Comments"])
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["Comments"])
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["Comments"])
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["Comments"])
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class LikeView(APIView):

@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 
 from .unfold import UNFOLD  # noqa F401
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -109,6 +108,7 @@ MIDDLEWARE = [
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    "users.authentication.EmailBackend",
 )
 LOGIN_REDIRECT_URL = "/"
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
@@ -222,12 +222,10 @@ CELERY_RESULT_EXTENDED = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-#     "DEFAULT_AUTHENTICATION_CLASSES": (
-#         "rest_framework_simplejwt.authentication.JWTAuthentication",
-#     ),
-# }
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("users.authentication.CustomJWTAuthentication",),
+}
 
 # JWT settings
 
@@ -245,10 +243,10 @@ SWAGGER_SETTINGS = {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header",
-            "description": "Token-based authentication with required prefix `Bearer`. Example: `Bearer <your_token>`",
         },
     },
 }
+
 
 AUTH_USER_MODEL = "users.CustomUser"
 

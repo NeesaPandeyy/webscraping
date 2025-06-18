@@ -1,4 +1,3 @@
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, permissions, status
 from rest_framework.permissions import AllowAny
@@ -9,8 +8,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser, Support
 
-from .serializers import (LoginsSerializer, RegistersSerializer,
-                          SupportSerializer, UserSerializer)
+from .serializers import (
+    LoginSerializer,
+    RegistersSerializer,
+    SupportSerializer,
+    UserSerializer,
+)
 
 
 class AccountsAPIRootView(APIView):
@@ -42,7 +45,6 @@ class UserView(generics.ListAPIView):
     serializer_class = UserSerializer
 
     @swagger_auto_schema(
-        responses={200: UserSerializer(many=True)},
         tags=["users"],
     )
     def get(self, request, *args, **kwargs):
@@ -55,7 +57,6 @@ class RegisterView(generics.CreateAPIView):
 
     @swagger_auto_schema(
         request_body=RegistersSerializer,
-        responses={201: UserSerializer},
         tags=["users"],
     )
     def post(self, request, *args, **kwargs):
@@ -63,11 +64,10 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(generics.GenericAPIView):
-    serializer_class = LoginsSerializer
+    serializer_class = LoginSerializer
 
     @swagger_auto_schema(
-        request_body=LoginsSerializer,
-        responses={200: openapi.Response("Login successful", schema=UserSerializer)},
+        request_body=LoginSerializer,
         tags=["users"],
     )
     def post(self, request, *args, **kwargs):
@@ -77,7 +77,7 @@ class LoginView(generics.GenericAPIView):
 
         tokens = get_tokens(user)
         return Response(
-            {"token": tokens, "user": UserSerializer(user).data},
+            {"tokens": tokens, "user": UserSerializer(user).data},
             status=status.HTTP_200_OK,
         )
 
@@ -90,7 +90,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
     @swagger_auto_schema(
-        responses={200: UserSerializer},
         tags=["users"],
     )
     def get(self, request, *args, **kwargs):
@@ -98,7 +97,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     @swagger_auto_schema(
         request_body=UserSerializer,
-        responses={200: UserSerializer},
         tags=["users"],
     )
     def put(self, request, *args, **kwargs):
@@ -106,7 +104,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     @swagger_auto_schema(
         request_body=UserSerializer,
-        responses={200: UserSerializer},
         tags=["users"],
     )
     def patch(self, request, *args, **kwargs):

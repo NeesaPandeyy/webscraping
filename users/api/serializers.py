@@ -42,14 +42,20 @@ class RegistersSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginsSerializer(serializers.Serializer):
-    username = serializers.CharField()
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
     def validate(self, data):
-        user = authenticate(username=data["username"], password=data["password"])
+        email = data.get("email")
+        password = data.get("password")
+
+        user = authenticate(
+            request=self.context.get("request"), email=email, password=password
+        )
         if not user:
-            raise serializers.ValidationError("Invalid data")
+            raise serializers.ValidationError("Invalid email or password")
+
         return user
 
 

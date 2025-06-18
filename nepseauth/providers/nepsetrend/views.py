@@ -3,10 +3,12 @@ from allauth.account.models import EmailAddress
 from allauth.account.utils import user_display, user_username
 from allauth.core.internal.httpkit import default_get_frontend_url
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from allauth.socialaccount.models import (SocialAccount, SocialToken)
-from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
-                                                          OAuth2CallbackView,
-                                                          OAuth2LoginView)
+from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.providers.oauth2.views import (
+    OAuth2Adapter,
+    OAuth2CallbackView,
+    OAuth2LoginView,
+)
 from django.conf import settings
 
 

@@ -14,8 +14,12 @@ from scraper.api.filters import AnnouncementFilter, StockRecordFilter
 from scraper.models import Announcement, StockRecord, Symbol
 from scraper.services.sentiment import SentimentAnalysis
 
-from .serializers import (AnnouncementSerializer, SentimentSerializer,
-                          StockRecordSerializer, SymbolSerializer)
+from .serializers import (
+    AnnouncementSerializer,
+    SentimentSerializer,
+    StockRecordSerializer,
+    SymbolSerializer,
+)
 
 
 class ScraperAPIRootView(APIView):

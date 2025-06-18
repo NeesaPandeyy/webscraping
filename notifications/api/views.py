@@ -42,7 +42,9 @@ class NotificationListView(generics.ListAPIView):
 
 
 class ReadNotificationView(APIView):
+    serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
     @swagger_auto_schema(
         tags=["Notifications"],

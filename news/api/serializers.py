@@ -11,8 +11,15 @@ class CustomTagSerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 
+class RecursiveField(serializers.Serializer):
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
+        return serializer.data
+
+
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.CharField()
+    replies = RecursiveField(many=True, read_only=True)
 
     class Meta:
         model = Comment
@@ -22,6 +29,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "post",
             "parent",
             "body",
+            "replies",
             "created_at",
         ]
 

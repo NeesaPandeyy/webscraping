@@ -7,6 +7,7 @@ from .views import (
     ProfileView,
     RegisterView,
     UserView,
+    SupportListAdminView,
 )
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login-api"),
     path("profile/", ProfileView.as_view(), name="profile-api"),
     path("support/create/", CreateSupportView.as_view(), name="support-api"),
+    path("support/admin/", SupportListAdminView.as_view(), name="supportadmin-api"),
 ]

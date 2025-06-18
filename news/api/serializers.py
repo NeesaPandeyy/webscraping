@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from news.models import Bookmark, Category, Comment, CustomTag, Like, NewsPost
+from news.models import Bookmark, Category, Comment, CustomTag, NewsPost
 
 
 class CustomTagSerializer(serializers.ModelSerializer):
@@ -32,21 +32,11 @@ class CommentSerializer(serializers.ModelSerializer):
             "replies",
             "created_at",
         ]
+        read_only_fields = ["user", "created_at"]
 
 
-class LikeSerializer(serializers.ModelSerializer):
-    user = serializers.CharField()
-
-    class Meta:
-        model = Like
-        fields = [
-            "id",
-            "user",
-            "post",
-        ]
-
-    def get_queryset(self):
-        return Like.objects.filter(post__status=NewsPost.NewsStatus.PUBLISHED)
+class LikeToggleSerializer(serializers.Serializer):
+    liked = serializers.BooleanField()
 
 
 class NewsSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -91,17 +81,13 @@ class CategorySerializer(serializers.ModelSerializer):
         ]
 
 
+class BookmarkToggleSerializer(serializers.Serializer):
+    bookmarked = serializers.BooleanField()
+
+
 class BookmarkSerializer(serializers.ModelSerializer):
+    post_title = serializers.CharField(source="post.title", read_only=True)
+
     class Meta:
         model = Bookmark
-        fields = ["post", "user", "created_at"]
-        read_only_fields = ["user", "created_at"]
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-
-        if not request or not request.user.is_authenticated:
-            raise serializers.ValidationError("Authentication required.")
-        validated_data["user"] = request.user
-        instance, _ = Bookmark.objects.get_or_create(**validated_data)
-        return instance
+        fields = ["id", "post", "post_title", "created_at"]

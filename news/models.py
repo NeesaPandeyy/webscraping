@@ -8,7 +8,7 @@ from taggit.models import GenericTaggedItemBase, TagBase
 
 from core.models import TimestampAbstractModel
 
-from .managers import LikeManager
+from .managers import BookmarkManager, LikeManager
 
 
 class CustomTag(TagBase):
@@ -129,6 +129,8 @@ class Comment(TimestampAbstractModel, MPTTModel):
 class Bookmark(TimestampAbstractModel, models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(NewsPost, on_delete=models.CASCADE)
+
+    objects = BookmarkManager()
 
     class Meta:
         unique_together = ("user", "post")

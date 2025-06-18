@@ -1,16 +1,16 @@
 from django.urls import path
-
 from .views import (
-    BookmarkView,
-    CategoryView,
-    CommentDetailView,
-    CommentListCreateView,
-    CustomTagList,
-    LikeView,
     NewsAPIRootView,
+    PublishedNewsView,
     NewsCreateAPIView,
     PublishedNewsDetailView,
-    PublishedNewsView,
+    CommentListCreateView,
+    CommentDetailView,
+    LikeView,
+    BookmarkToggleView,
+    BookmarkView,
+    CategoryView,
+    CustomTagList,
 )
 
 urlpatterns = [
@@ -20,7 +20,7 @@ urlpatterns = [
     path("news/<int:pk>/", PublishedNewsDetailView.as_view(), name="newsdetail-api"),
     path("category/", CategoryView.as_view(), name="category-api"),
     path("tags/", CustomTagList.as_view(), name="tags-api"),
-    path("like/", LikeView.as_view(), name="like-api"),
+    path("news/<int:post_id>/like/", LikeView.as_view(), name="like-api"),
     path(
         "news/<int:post_id>/comments/",
         CommentListCreateView.as_view(),
@@ -31,5 +31,10 @@ urlpatterns = [
         CommentDetailView.as_view(),
         name="comment-detail-api",
     ),
-    path("bookmark/", BookmarkView.as_view(), name="bookmark-api"),
+    path("mybookmark/", BookmarkView.as_view(), name="bookmark-api"),
+    path(
+        "news/<int:post_id>/bookmark/",
+        BookmarkToggleView.as_view(),
+        name="bookmark-toggle",
+    ),
 ]

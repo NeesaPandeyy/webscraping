@@ -27,6 +27,9 @@ class AccountsAPIRootView(APIView):
                 "register": reverse("register-api", request=request, format=format),
                 "login": reverse("login-api", request=request, format=format),
                 "support": reverse("support-api", request=request, format=format),
+                "supportadmin": reverse(
+                    "supportadmin-api", request=request, format=format
+                ),
                 "profile": reverse("profile-api", request=request, format=format),
             }
         )
@@ -113,15 +116,24 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 class CreateSupportView(generics.CreateAPIView):
     queryset = Support.objects.all()
     serializer_class = SupportSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         request_body=SupportSerializer,
-        responses={201: SupportSerializer},
-        tags=["users"],
+        tags=["Support"],
     )
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class SupportListAdminView(generics.ListAPIView):
+    queryset = Support.objects.all()
+    serializer_class = SupportSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    @swagger_auto_schema(tags=["Support"])
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

@@ -1,16 +1,17 @@
 from django.urls import path
+
 from .views import (
-    NewsAPIRootView,
-    PublishedNewsView,
-    NewsCreateAPIView,
-    PublishedNewsDetailView,
-    CommentListCreateView,
-    CommentDetailView,
-    LikeView,
     BookmarkToggleView,
     BookmarkView,
     CategoryView,
+    CommentDetailView,
+    CommentListCreateView,
     CustomTagList,
+    LikeView,
+    NewsAPIRootView,
+    NewsCreateAPIView,
+    PublishedNewsDetailView,
+    PublishedNewsView,
 )
 
 urlpatterns = [

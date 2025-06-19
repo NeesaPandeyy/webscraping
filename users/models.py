@@ -24,3 +24,8 @@ class Support(TimestampAbstractModel, models.Model):
 
     def __str__(self):
         return f"{self.subject}"
+
+
+class PasswordReset(TimestampAbstractModel, models.Model):
+    email = models.EmailField()
+    token = models.CharField(max_length=100)

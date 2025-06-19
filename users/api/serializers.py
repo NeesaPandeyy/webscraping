@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from users.models import CustomUser, Support
@@ -26,11 +28,13 @@ class RegistersSerializer(serializers.ModelSerializer):
     def validate_email(self, data):
         if CustomUser.objects.filter(email=data).exists():
             raise serializers.ValidationError("Email already exists.")
+
         return data
 
     def validate(self, data):
         if data["password1"] != data["password2"]:
             raise serializers.ValidationError("Passwords do not match.")
+        validate_password(data["password1"], user=None)
         return data
 
     def create(self, validated_data):
@@ -64,3 +68,36 @@ class SupportSerializer(serializers.ModelSerializer):
         model = Support
         fields = ["id", "user", "subject", "message", "created_at"]
         read_only_fields = ["user", "created_at"]
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+
+class ResetPasswordRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(
+        write_only=True, style={"input_type": "password"}
+    )
+    confirm_password = serializers.CharField(
+        write_only=True, style={"input_type": "password"}
+    )
+
+    def validate(self, data):
+        new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        try:
+            validate_password(new_password)
+        except ValidationError as e:
+            raise serializers.ValidationError({"new_password": e.messages})
+
+        return data

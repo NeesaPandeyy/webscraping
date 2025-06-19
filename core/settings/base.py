@@ -275,3 +275,19 @@ TAGGIT_CASE_INSENSITIVE = True
 
 # ckeditor
 from .ckeditor import *  # noqa F401
+
+# passwordvalidation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "users.validators.SymbolValidator"},
+]
+
+PASSWORD_RESET_BASE_URL = os.getenv("PASSWORD_RESET_BASE_URL")
